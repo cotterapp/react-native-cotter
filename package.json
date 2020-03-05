@@ -1,0 +1,43 @@
+{
+  "name": "react-native-cotter",
+  "version": "0.1.2",
+  "description": "React Native toolkit for Cotter API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/cotterapp/react-native-cotter"
+  },
+  "keywords": [
+    "Cotter",
+    "FIDO",
+    "Biometrics",
+    "Phone",
+    "Number",
+    "Input",
+    "Trusted",
+    "Device",
+    "DUO",
+    "Multifactor",
+    "Authentication",
+    "2FA",
+    "MFA",
+    "react-native",
+    "PIN",
+    "Authentication"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "metro-react-native-babel-preset": "^0.58.0"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "buffer": "^5.4.3",
+    "react-native-inappbrowser-reborn": "^3.3.4",
+    "react-native-securerandom": "^1.0.0-rc.0",
+    "react-native-sha256": "^1.3.6"
+  }
+}
