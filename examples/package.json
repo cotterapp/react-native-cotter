@@ -17,7 +17,7 @@
     "buffer": "^5.4.3",
     "react": "16.9.0",
     "react-native": "0.61.5",
-    "react-native-cotter": "../react-native-cotter-0.1.2.tgz",
+    "react-native-cotter": "../react-native-cotter-0.1.4.tgz",
     "react-native-gesture-handler": "^1.6.0",
     "react-native-inappbrowser-reborn": "^3.3.4",
     "react-native-reanimated": "^1.7.0",

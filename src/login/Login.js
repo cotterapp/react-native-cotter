@@ -8,6 +8,12 @@ import {hexToBytes} from './utils';
 
 class Login {
   /**
+   * This callback type is called `successCallback` and is displayed as a global symbol.
+   * It receives an object of the loginResponse
+   * @callback successCallback
+   * @param {Object} loginResponse
+   */
+  /**
    * This callback type is called `errorCallback` and is displayed as a global symbol.
    * It receives an error message as string and a detailed error object, that may be empty
    * @callback errorCallback
@@ -20,15 +26,15 @@ class Login {
    * @param {string} callbackURL
    * @param {string} apiKeyID
    * @param {errorCallback} onError
-   * @param {string} callbackScreenName
+   * @param {successCallback} onSuccess
    */
-  constructor(baseURL, callbackURL, apiKeyID, onError, callbackScreenName) {
+  constructor(baseURL, callbackURL, apiKeyID, onError, onSuccess) {
     this.baseURL = baseURL;
     this.callbackURL = callbackURL;
     this.apiKeyID = apiKeyID;
     this.state = this.generateState();
     this.onError = onError;
-    this.callbackScreenName = callbackScreenName;
+    this.onSuccess = onSuccess;
   }
 
   async generateCodeVerifierAndChallenge() {

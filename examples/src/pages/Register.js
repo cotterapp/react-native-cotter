@@ -25,9 +25,9 @@ class Register extends PureComponent {
     var login = new Login(
       'https://js.cotter.app/app',
       'myexample://auth_callback',
-      '<YOUR API KEY>',
+      '<API_KEY_ID>',
       this.onError,
-      'Dashboard',
+      this.onSuccess,
     );
     await login.openAuthWithInput('EMAIL', this.state.email);
   };
@@ -35,6 +35,15 @@ class Register extends PureComponent {
   onError = (errorMessage, error) => {
     alert(errorMessage);
     console.log(error);
+  };
+
+  onSuccess = response => {
+    console.log(response);
+    // alert('Registering to backend');
+    /* 1. Navigate to the callbackScreenName route with params */
+    this.props.navigation.replace('Dashboard', {
+      loginResponse: response,
+    });
   };
 
   render() {

@@ -13,8 +13,24 @@ export default class LoadingPage extends Component {
   }
 
   componentDidMount() {
-    const {code, state, challenge_id} = this.props.route.params || {};
-    this.getIdentity(code, state, challenge_id);
+    if (this.props.route) {
+      const {code, state, challenge_id} = this.props.route.params || {};
+      this.getIdentity(code, state, challenge_id);
+    } else if (
+      this.props.navigation &&
+      this.props.navigation.getParam('code')
+    ) {
+      var code = this.props.navigation.getParam('code');
+      var state = this.props.navigation.getParam('state');
+      var challenge_id = this.props.navigation.getParam('challenge_id');
+      this.getIdentity(code, state, challenge_id);
+    } else {
+      loginReq.onError(
+        'Unable to receive code/state/challenge_id in URL',
+        null,
+      );
+      this.props.navigation.goBack();
+    }
   }
 
   getIdentity(auth_code, state, challenge_id) {
@@ -46,10 +62,8 @@ export default class LoadingPage extends Component {
     axiosClient
       .post(path, data, config)
       .then(resp => {
-        /* 1. Navigate to the callbackScreenName route with params */
-        this.props.navigation.replace(loginReq.callbackScreenName, {
-          loginResponse: resp.data,
-        });
+        this.props.navigation.goBack();
+        loginReq.onSuccess(resp.data);
       })
       .catch(e => {
         console.log(e);
