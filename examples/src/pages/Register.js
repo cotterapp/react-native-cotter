@@ -5,27 +5,38 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Dimensions,
+  Image,
 } from 'react-native';
-import {Login} from 'react-native-cotter';
+import {Login, Cotter} from 'react-native-cotter';
 import colors from '../assets/colors';
 import {Title} from '../components/Text';
 import {Button, ButtonImage, ButtonContainer} from '../components/Button';
 import {InputContainer, InputLabel, InputText} from '../components/Input';
+import {
+  API_KEY_ID,
+  API_SECRET_KEY,
+  USER_ID,
+  COTTER_JS_URL,
+  COTTER_BASE_URL,
+} from '../apiKeys';
 
 const winHeight = Dimensions.get('window').height;
+const helloLogo = require('../assets/images/hello-logo.png');
 
 class Register extends PureComponent {
   state = {
-    email: 'hello@gmail.com',
+    email: 'putrikarunian@gmail.com',
     loading: false,
     ip: null,
     secKey: null,
+    response: null,
+    userID: null,
   };
   continue = async () => {
     var login = new Login(
-      'https://js.cotter.app/app',
+      COTTER_JS_URL,
       'myexample://auth_callback',
-      '<API_KEY_ID>',
+      API_KEY_ID,
       this.onError,
       this.onSuccess,
     );
@@ -39,20 +50,63 @@ class Register extends PureComponent {
 
   onSuccess = response => {
     console.log(response);
+    this.setState({response});
     // alert('Registering to backend');
+    var userID = this.registerUser(response);
+    this.setState({userID: userID});
+    // Initialize Cotter
+    var cotter = new Cotter(
+      COTTER_BASE_URL,
+      API_KEY_ID,
+      API_SECRET_KEY,
+      userID,
+    );
+    // Enroll device as Trusted Device
+    cotter.trustedDevice.enrollDevice(this.onEnrollSuccess, this.onEnrollError);
     /* 1. Navigate to the callbackScreenName route with params */
-    this.props.navigation.replace('Dashboard', {
-      loginResponse: response,
+  };
+
+  onEnrollSuccess = resp => {
+    console.log(resp);
+    this.props.navigation.navigate('RegisterSuccess', {
+      trustedDeviceResp: resp,
+      loginResp: this.state.response,
+      userID: this.state.userID,
+    });
+  };
+  onEnrollError = err => {
+    console.log(err);
+    this.props.navigation.navigate('RegisterSuccess', {
+      trustedDeviceResp: err,
+      loginResp: this.state.response,
+      userID: this.state.userID,
     });
   };
 
+  registerUser = response => {
+    // register in backend
+    // check cotter's token
+    // register user in Cotter with some user ID
+    // get back the user ID
+    var userID = USER_ID;
+    return userID;
+  };
   render() {
     return (
       <>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.container}>
-            <Title style={{fontSize: 35, alignSelf: 'flex-start'}}>
-              Welcome
+            <Image source={helloLogo} style={styles.logo} />
+            <Title style={{fontSize: 20, alignSelf: 'flex-start'}}>
+              Welcome to
+            </Title>
+            <Title
+              style={{
+                fontSize: 35,
+                color: colors.purple,
+                alignSelf: 'flex-start',
+              }}>
+              Hello App
             </Title>
             <InputContainer style={{paddingTop: 60}}>
               <InputLabel style={{fontSize: 20}}>Email</InputLabel>
@@ -67,7 +121,7 @@ class Register extends PureComponent {
             <ButtonContainer>
               <ButtonImage
                 onPress={this.continue}
-                backgroundColor={colors.red}
+                backgroundColor={colors.purple}
                 color={colors.invertTextColor}>
                 <Title style={[styles.text, {textAlign: 'center'}]}>
                   Sign In Without Password
@@ -120,10 +174,12 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
   },
-  image: {
-    height: 150,
-    width: 150,
+  logo: {
+    height: 70,
+    width: 70,
+    marginBottom: 50,
     resizeMode: 'contain',
+    alignSelf: 'flex-start',
   },
 });
 export default Register;

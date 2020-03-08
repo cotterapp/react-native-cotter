@@ -5,6 +5,7 @@ const colors = {
   invertTextColor: '#ffffff',
   green: '#1BAC4B',
   purple: '#7174ff',
+  lightPurple: '#7174ff22',
   blue: '#4DABD1',
   mediumRed: '#ff9494',
   disabled: '#e0e0e0',
