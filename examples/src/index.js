@@ -2,8 +2,9 @@ import * as React from 'react';
 import 'react-native-gesture-handler';
 import {NavigationContainer, useLinking} from '@react-navigation/native';
 import Router from './router';
+import {connectCotterWrapper} from 'react-native-cotter';
 
-export default function App() {
+function App() {
   const ref = React.useRef();
 
   const {getInitialState} = useLinking(ref, {
@@ -47,3 +48,5 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+export default connectCotterWrapper(App);

@@ -41,16 +41,32 @@ function Dashboard({route}) {
       .then(trusted => {
         setTrustedDev(trusted);
       })
-      .catch(err => alert(err));
+      .catch(err => console.log(err));
   };
 
-  const authenticate = async () => {
+  const checkNewEvent = () => {
+    cotter.trustedDevice.getNewEvent();
+  };
+
+  const trustThisDevice = () => {
+    cotter.trustedDevice.trustThisDevice(onSuccessTrust, onErrorTrust);
+  };
+  const onSuccessTrust = () => {
+    alert('Success');
+  };
+  const onErrorTrust = (errmsg, err) => {
+    alert(errmsg);
+  };
+  const scanQRCode = () => {
+    cotter.trustedDevice.scanQRCode();
+  };
+  const removeDevice = async () => {
     try {
-      var resp = await cotter.trustedDevice.authorizeDevice('LOGIN');
-      console.log('RESP', resp);
+      var resp = await cotter.trustedDevice.removeDevice();
+      alert(resp);
+      console.log(resp);
     } catch (err) {
-      console.log(err);
-      alert('error');
+      alert(err);
     }
   };
 
@@ -61,19 +77,8 @@ function Dashboard({route}) {
         style={{width: winWidth, height: winHeight, resizeMode: 'cover'}}
       /> */}
 
-      <Title style={styles.title}>Dashboard</Title>
-      <ButtonContainer style={{marginTop: 30}}>
-        <Button
-          onPress={authenticate}
-          backgroundColor={colors.lightPurple}
-          color={colors.invertTextColor}>
-          <Title style={[styles.text, {textAlign: 'center'}]}>
-            Authenticate
-          </Title>
-        </Button>
-      </ButtonContainer>
       <Title style={styles.title} style={{marginTop: 30}}>
-        Settings
+        Dashboard
       </Title>
       <Subtitle style={styles.subtitle}>
         {trustedDev
@@ -82,7 +87,7 @@ function Dashboard({route}) {
       </Subtitle>
       <ButtonContainer style={{marginTop: 30}}>
         <Button
-          onPress={this.continue}
+          onPress={checkNewEvent}
           backgroundColor={colors.lightPurple}
           color={colors.invertTextColor}>
           <Title style={[styles.text, {textAlign: 'center'}]}>
@@ -90,9 +95,29 @@ function Dashboard({route}) {
           </Title>
         </Button>
       </ButtonContainer>
-      <ButtonContainer>
+      <ButtonContainer style={{marginTop: 30}}>
         <Button
-          onPress={this.continue}
+          onPress={trustThisDevice}
+          backgroundColor={colors.lightPurple}
+          color={colors.invertTextColor}>
+          <Title style={[styles.text, {textAlign: 'center'}]}>
+            Trust This Device
+          </Title>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer style={{marginTop: 30}}>
+        <Button
+          onPress={scanQRCode}
+          backgroundColor={colors.lightPurple}
+          color={colors.invertTextColor}>
+          <Title style={[styles.text, {textAlign: 'center'}]}>
+            Scan QR Code
+          </Title>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer style={{marginTop: 30}}>
+        <Button
+          onPress={removeDevice}
           backgroundColor={colors.lightPurple}
           color={colors.invertTextColor}>
           <Title style={[styles.text, {textAlign: 'center'}]}>
@@ -112,7 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     paddingTop: '40%',
-    backgroundColor: 'rgba(0, 0, 0, 0)',
+    backgroundColor: colors.backgroundColor,
     padding: 40,
   },
   buttonImage: {

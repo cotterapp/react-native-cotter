@@ -39,8 +39,8 @@ class Requests {
       enrolled: enrolled,
       code: code, // Code for PIN or Public Key
       algorithm: algorithm,
-      device_name: 'this.getDeviceName()',
-      device_type: 'this.getDeviceType()',
+      device_name: this.getDeviceName(),
+      device_type: this.getDeviceType(),
     };
 
     if (changeCode) {
@@ -57,10 +57,20 @@ class Requests {
       };
       const path = this.baseURL + '/user/' + this.userID;
       var resp = await axios.put(path, data, config);
-      return resp;
+      return resp.data;
     } catch (err) {
-      throw err;
+      throw err.response.data;
     }
+  }
+
+  /**
+   * @param {string} method
+   * @param {string} code
+   * @returns {Object} - http response, enroll or not
+   * @throws {Object} - http error response
+   */
+  deleteMethod(method, code) {
+    return this.updateMethod(method, code, false, false, null, null);
   }
 
   /**
@@ -87,9 +97,9 @@ class Requests {
         },
       };
       var resp = await axios.get(path, config);
-      return resp;
+      return resp.data;
     } catch (err) {
-      throw err;
+      throw err.response.data;
     }
   }
 
@@ -105,6 +115,26 @@ class Requests {
   }
 
   /**
+   * @param {string} event
+   * @param {string} timestamp
+   * @param {string} method
+   * @param {boolean} approved
+   * @returns {string}
+   */
+  constructRespondEventMsg(event, timestamp, method, approved) {
+    var list = [
+      this.userID,
+      this.apiKeyID,
+      event,
+      timestamp,
+      method,
+      approved + '',
+    ];
+    return list.join('');
+  }
+
+  /**
+   * Construct Event request JSON for an approved event
    * @param {string} event
    * @param {string} timestamp
    * @param {string} method
@@ -125,7 +155,7 @@ class Requests {
       client_user_id: this.userID,
       issuer: this.apiKeyID,
       event: event,
-      ip: 'getIPAddress()',
+      ip: this.getIPAddress(),
       timestamp: timestamp,
       method: method,
       code: code,
@@ -135,6 +165,102 @@ class Requests {
     if (algorithm) {
       data['algorithm'] = algorithm;
     }
+    return data;
+  }
+
+  /**
+   * Construct Event request JSON for a respond to an event
+   * @param {Object} event
+   * @param {string} method
+   * @param {string} signature - PIN or Signature
+   * @param {string} publicKey - PublicKey for TrustedDevice or Biometric
+   * @param {string} algorithm - Algorithm used for TrustedDevice keys
+   * @param {boolean} approved - PublicKey for TrustedDevice or Biometric
+   * @returns {Object} - The JSON data constructed
+   */
+  constructRespondEventJSON(
+    ev,
+    method,
+    signature,
+    publicKey,
+    algorithm,
+    approved,
+  ) {
+    var data = {
+      client_user_id: this.userID,
+      issuer: this.apiKeyID,
+      event: ev.event,
+      ip: ev.ip,
+      timestamp: ev.timestamp,
+      method: method,
+      code: signature,
+      approved: approved,
+      public_key: publicKey,
+      algorithm: algorithm,
+    };
+    return data;
+  }
+
+  /**
+   * Construct Event request JSON for a registering a new trusted device
+   * @param {string} event
+   * @param {string} timestamp
+   * @param {string} method
+   * @param {string} signature - PIN or Signature
+   * @param {string} publicKey - PublicKey for TrustedDevice or Biometric
+   * @param {string} algorithm - Algorithm used for TrustedDevice keys
+   * @param {string} newPublicKey - New PublicKey to be enrolled
+   * @param {string} newAlgo - New PublicKey Algorithm to be enrolled
+   * @param {boolean} approved - PublicKey for TrustedDevice or Biometric
+   * @returns {Object} - The JSON data constructed
+   */
+  constructRegisterNewDeviceJSON(
+    event,
+    timestamp,
+    method,
+    signature,
+    publicKey,
+    algorithm,
+    newPublicKey,
+    newAlgo,
+  ) {
+    var data = {
+      client_user_id: this.userID,
+      issuer: this.apiKeyID,
+      event: event,
+      ip: this.getIPAddress(),
+      timestamp: timestamp,
+      method: method,
+      code: signature,
+      approved: true,
+      public_key: publicKey,
+      algorithm: algorithm,
+
+      register_new_device: true,
+      new_device_public_key: newPublicKey,
+      device_type: this.getDeviceType(),
+      device_name: this.getDeviceName(),
+      new_device_algorithm: newAlgo,
+    };
+    return data;
+  }
+
+  /**
+   * Construct Event request JSON for a pending event
+   * @param {string} event
+   * @param {string} timestamp
+   * @param {string} method
+   * @returns {Object} - The JSON data constructed
+   */
+  constructEventJSON(event, timestamp, method) {
+    var data = {
+      client_user_id: this.userID,
+      issuer: this.apiKeyID,
+      event: event,
+      ip: this.getIPAddress(),
+      timestamp: timestamp,
+      method: method,
+    };
     return data;
   }
 
@@ -175,6 +301,94 @@ class Requests {
     } catch (err) {
       throw err;
     }
+  }
+
+  /**
+   * Create event that need approval from a TrustedDevice
+   * @param {Object} req
+   * @returns {Object} - The Event Object created
+   * @throws {Object} - http error response
+   */
+  async createPendingEventRequest(req) {
+    const path = '/event/create_pending';
+    try {
+      var resp = await this.createEventRequest(req, path);
+      return resp;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /**
+   * Create response to an event
+   * @param {number} eventID
+   * @param {Object} req
+   * @returns {Object} - The Event Object created
+   * @throws {Object} - http error response
+   */
+  async createRespondEventRequest(eventID, req) {
+    const path = '/event/respond/' + eventID;
+    try {
+      var resp = await this.createEventRequest(req, path);
+      return resp;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /**
+   * Get an event based on the ID
+   * @param {number} eventID
+   * @returns {Object} - The Event Object created
+   * @throws {Object} - http error response
+   */
+  async getEvent(eventID) {
+    try {
+      var config = {
+        headers: {
+          API_KEY_ID: this.apiKeyID,
+          API_SECRET_KEY: this.apiSecretKey,
+          'Content-type': 'application/json',
+        },
+      };
+      const path = '/event/get/' + eventID;
+      var resp = await axios.get(this.baseURL + path, config);
+      return resp.data;
+    } catch (err) {
+      throw err.response.data;
+    }
+  }
+
+  /**
+   * Get new event based on the user ID
+   * @returns {Object} - The Event Object created
+   * @throws {Object} - http error response
+   */
+  async getNewEvent() {
+    try {
+      var config = {
+        headers: {
+          API_KEY_ID: this.apiKeyID,
+          API_SECRET_KEY: this.apiSecretKey,
+          'Content-type': 'application/json',
+        },
+      };
+      const path = '/event/new/' + this.userID;
+      var resp = await axios.get(this.baseURL + path, config);
+      return resp.data;
+    } catch (err) {
+      throw err.response.data;
+    }
+  }
+
+  getDeviceType() {
+    return 'TODO: device type';
+  }
+  getDeviceName() {
+    return 'TODO: device name';
+  }
+  getIPAddress() {
+    return 'TODO: ip address';
   }
 }
 

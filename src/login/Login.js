@@ -75,7 +75,7 @@ class Login {
     url = url + `&type=${identifierType}`;
     url = url + `&code_challenge=${this.codeChallenge}`;
     url = url + `&state=${this.state}`;
-    url = url + `&input=${encodeURI(identifier)}`;
+    url = url + `&input=${encodeURIComponent(identifier)}`;
     return url;
   }
 

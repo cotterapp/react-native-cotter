@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import RegisterSuccess from './pages/RegisterSuccess';
 import Dashboard from './pages/Dashboard';
 import {LoadingPage} from 'react-native-cotter';
+import Login from './pages/Login';
+import Start from './pages/Start';
 
 const MainStack = createStackNavigator();
 const RootStack = createStackNavigator();
@@ -13,13 +15,23 @@ function MainStackRouter() {
   return (
     <MainStack.Navigator>
       <MainStack.Screen
-        name="Dashboard"
-        component={Dashboard}
+        name="Start"
+        component={Start}
         options={{headerShown: false}}
       />
       <MainStack.Screen
         name="Register"
         component={Register}
+        options={{headerShown: false}}
+      />
+      <MainStack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
+      />
+      <MainStack.Screen
+        name="Dashboard"
+        component={Dashboard}
         options={{headerShown: false}}
       />
       <MainStack.Screen
