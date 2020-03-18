@@ -227,7 +227,11 @@ const connectCotterWrapper = function(WrappedComponent) {
 
     hideQRCode = () => {
       clearInterval(this.timerQRShow);
-      this.setState({visibleShowQRCode: false});
+      this.setState({
+        visibleShowQRCode: false,
+        qrShowSuccess: false,
+        qrShowError: false,
+      });
     };
 
     trustedDeviceEnrolled = async () => {
