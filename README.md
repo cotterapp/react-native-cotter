@@ -13,6 +13,8 @@ yarn add react-native-qrcode-scanner
 yarn add react-native-permissions
 yarn add react-native-camera
 
+yarn add rn-secure-storage tweetnacl react-native-randombytes react-native-qrcode-svg react-native-svg react-native-qrcode-scanner react-native-permissions react-native-camera
+
 cd ios && pod install && cd ..
 
 import {connectCotterWrapper} from 'react-native-cotter';
