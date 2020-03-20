@@ -53,6 +53,7 @@
     "react-native": "^0.61.5"
   },
   "resolutions": {
-    "**/**/minimist": "^1.2.5"
+    "**/**/minimist": "^1.2.5",
+    "**/**/mem": "^4.0.0"
   }
 }
