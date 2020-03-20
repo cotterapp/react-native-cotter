@@ -17,11 +17,11 @@
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* examplesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* examplesTests.m */; };
+		6C9080497A154D27B370D9A5 /* Akkurat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 52D4477809FB481E84522527 /* Akkurat-Bold.ttf */; };
 		7B09293FFAD9AADEF9535323 /* libPods-examples-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9538FC47C2B0449177498B5 /* libPods-examples-tvOS.a */; };
 		A6EA6D19D097FF0482322212 /* libPods-examplesTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 284B661A6B9AFB7C45178CF0 /* libPods-examplesTests.a */; };
-		F35CAEB9A776D54B1CB6C160 /* libPods-examples-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E224A55DDB0292FE70177B06 /* libPods-examples-tvOSTests.a */; };
-		6C9080497A154D27B370D9A5 /* Akkurat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 52D4477809FB481E84522527 /* Akkurat-Bold.ttf */; };
 		E0C0BCD49E494D96947CF6FC /* Akkurat.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81EB20FD01A8474F85C45DAB /* Akkurat.ttf */; };
+		F35CAEB9A776D54B1CB6C160 /* libPods-examples-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E224A55DDB0292FE70177B06 /* libPods-examples-tvOSTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +60,9 @@
 		2D02E4901E0B4A5D006451C7 /* examples-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "examples-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		31C404BF38F6FE9AD216658B /* Pods-examples.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-examples.release.xcconfig"; path = "Target Support Files/Pods-examples/Pods-examples.release.xcconfig"; sourceTree = "<group>"; };
 		392E1EC4B192A4B9C884E152 /* Pods-examples-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-examples-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-examples-tvOS/Pods-examples-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		52D4477809FB481E84522527 /* Akkurat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Akkurat-Bold.ttf"; path = "../src/assets/fonts/Akkurat-Bold.ttf"; sourceTree = "<group>"; };
 		6A138925DFF41B73A423D7D8 /* Pods-examples-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-examples-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-examples-tvOSTests/Pods-examples-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		81EB20FD01A8474F85C45DAB /* Akkurat.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Akkurat.ttf; path = ../src/assets/fonts/Akkurat.ttf; sourceTree = "<group>"; };
 		A8CCBE1B7DC124C1038B097B /* Pods-examplesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-examplesTests.release.xcconfig"; path = "Target Support Files/Pods-examplesTests/Pods-examplesTests.release.xcconfig"; sourceTree = "<group>"; };
 		A9538FC47C2B0449177498B5 /* libPods-examples-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-examples-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D79249C92120CEF699DFECF6 /* Pods-examples-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-examples-tvOS.release.xcconfig"; path = "Target Support Files/Pods-examples-tvOS/Pods-examples-tvOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -69,8 +71,6 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		F33538A9FC351D93A8DBB9DF /* libPods-examples.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-examples.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		52D4477809FB481E84522527 /* Akkurat-Bold.ttf */ = {isa = PBXFileReference; name = "Akkurat-Bold.ttf"; path = "../src/assets/fonts/Akkurat-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		81EB20FD01A8474F85C45DAB /* Akkurat.ttf */ = {isa = PBXFileReference; name = "Akkurat.ttf"; path = "../src/assets/fonts/Akkurat.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,8 +165,16 @@
 				07E3C1D513DE8C31E9F9A6CB /* Pods-examplesTests.debug.xcconfig */,
 				A8CCBE1B7DC124C1038B097B /* Pods-examplesTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		7E64DB83AC6B4107BB44B106 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				52D4477809FB481E84522527 /* Akkurat-Bold.ttf */,
+				81EB20FD01A8474F85C45DAB /* Akkurat.ttf */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -202,16 +210,6 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
-		};
-		7E64DB83AC6B4107BB44B106 /* Resources */ = {
-			isa = "PBXGroup";
-			children = (
-				52D4477809FB481E84522527 /* Akkurat-Bold.ttf */,
-				81EB20FD01A8474F85C45DAB /* Akkurat.ttf */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-			path = "";
 		};
 /* End PBXGroup section */
 
@@ -305,7 +303,11 @@
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = S82KLNTT2U;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
+					};
+					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = S82KLNTT2U;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -323,6 +325,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -600,6 +603,7 @@
 			baseConfigurationReference = 07E3C1D513DE8C31E9F9A6CB /* Pods-examplesTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = S82KLNTT2U;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -624,6 +628,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = S82KLNTT2U;
 				INFOPLIST_FILE = examplesTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -645,6 +650,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = S82KLNTT2U;
 				INFOPLIST_FILE = examples/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -652,7 +658,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.go-vest.cotter.examplesapp";
 				PRODUCT_NAME = examples;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -664,6 +670,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = S82KLNTT2U;
 				INFOPLIST_FILE = examples/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -671,7 +678,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.go-vest.cotter.examplesapp";
 				PRODUCT_NAME = examples;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
