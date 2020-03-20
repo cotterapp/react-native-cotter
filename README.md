@@ -15,7 +15,13 @@ yarn add react-native-camera
 
 yarn add rn-secure-storage tweetnacl react-native-randombytes react-native-qrcode-svg react-native-svg react-native-qrcode-scanner react-native-permissions react-native-camera
 
+yarn add react-native-permissions react-native-camera react-native-svg react-native-randombytes rn-secure-storage
+
 cd ios && pod install && cd ..
+
+Installing RNPermissions (2.0.10)
+Installing RNSVG 12.0.3 (was 9.11.1)
+Installing react-native-camera (3.19.2)
 
 import {connectCotterWrapper} from 'react-native-cotter';
 
