@@ -69,8 +69,20 @@ class Requests {
    * @returns {Object} - http response, enroll or not
    * @throws {Object} - http error response
    */
-  deleteMethod(method, code) {
-    return this.updateMethod(method, code, false, false, null, null);
+  async deleteMethod(method, code) {
+    try {
+      var resp = await this.updateMethod(
+        method,
+        code,
+        false,
+        false,
+        null,
+        null,
+      );
+      return resp;
+    } catch (err) {
+      throw err;
+    }
   }
 
   /**

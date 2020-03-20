@@ -408,33 +408,25 @@ const connectCotterWrapper = function(WrappedComponent) {
       }
     };
     render() {
-      const authReqText =
-        this.state.authReqText &&
-        this.state.authReqText.title &&
-        this.state.authReqText.titleError
-          ? this.state.authReqText
-          : this.state.defaultAuthReqText;
+      const authReqText = Object.assign(
+        {...this.state.defaultAuthReqText},
+        this.state.authReqText,
+      );
 
-      const authApproveText =
-        this.state.authApproveText &&
-        this.state.authApproveText.title &&
-        this.state.authApproveText.titleError
-          ? this.state.authApproveText
-          : this.state.defaultAuthApproveText;
+      const authApproveText = Object.assign(
+        {...this.state.defaultAuthApproveText},
+        this.state.authApproveText,
+      );
 
-      const showQRText =
-        this.state.showQRText &&
-        this.state.showQRText.title &&
-        this.state.showQRText.titleError
-          ? this.state.showQRText
-          : this.state.defaultShowQRText;
+      const showQRText = Object.assign(
+        {...this.state.defaultShowQRText},
+        this.state.showQRText,
+      );
 
-      const scanQRText =
-        this.state.scanQRText &&
-        this.state.scanQRText.title &&
-        this.state.scanQRText.titleError
-          ? this.state.scanQRText
-          : this.state.defaultScanQRText;
+      const scanQRText = Object.assign(
+        {...this.state.defaultScanQRText},
+        this.state.scanQRText,
+      );
 
       var scanQRtitle = (
         <View style={{width: '100%'}}>

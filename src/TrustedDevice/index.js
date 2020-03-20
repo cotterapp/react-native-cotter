@@ -418,7 +418,7 @@ class TrustedDevice {
     if (thisDeviceTrusted) {
       try {
         var pubKey = await this.getPublicKey();
-        var resp = this.requests.deleteMethod(this.method, pubKey);
+        var resp = await this.requests.deleteMethod(this.method, pubKey);
         return resp;
       } catch (err) {
         var errMsg = err.msg ? err.msg : 'Something went wrong';
