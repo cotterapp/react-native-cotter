@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const DEV = false;
-const STAGING = true;
+const STAGING = false;
 
 const COTTER_BASE_URL = DEV
   ? 'http://localhost:1234/api/v0'
