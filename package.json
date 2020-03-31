@@ -1,6 +1,6 @@
 {
   "name": "react-native-cotter",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "React Native toolkit for Cotter API",
   "main": "index.js",
   "scripts": {
