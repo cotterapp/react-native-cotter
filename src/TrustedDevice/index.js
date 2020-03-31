@@ -97,12 +97,12 @@ class TrustedDevice {
       var keypair = sign.keyPair.fromSeed(seed);
       const secKey = new Buffer(keypair.secretKey).toString('base64');
       const pubKey = new Buffer(keypair.publicKey).toString('base64');
+      saveItemSecure(this.getKeystoreAliasPubKey(), pubKey);
+      saveItemSecure(this.getKeystoreAliasSecKey(), secKey);
 
       this.requests
         .updateMethod(this.method, pubKey, true, false, null, this.algorithm)
         .then(resp => {
-          saveItemSecure(this.getKeystoreAliasPubKey(), pubKey);
-          saveItemSecure(this.getKeystoreAliasSecKey(), secKey);
           onSuccess(resp);
         })
         .catch(err => {
@@ -180,7 +180,7 @@ class TrustedDevice {
     try {
       var pubKey = await this.getPublicKey();
       var signature = await this.sign(stringToSign);
-      var data = this.requests.constructApprovedEventJSON(
+      var data = await this.requests.constructApprovedEventJSON(
         event,
         timestamp,
         this.method,
@@ -212,7 +212,7 @@ class TrustedDevice {
   ) {
     var timestamp = Math.round(new Date().getTime() / 1000).toString();
     try {
-      var data = this.requests.constructEventJSON(
+      var data = await this.requests.constructEventJSON(
         event,
         timestamp,
         this.method,
@@ -391,7 +391,7 @@ class TrustedDevice {
         ) + newPublicKey;
       var signature = await this.sign(stringToSign);
       var pubKey = await this.getPublicKey();
-      var req = this.requests.constructRegisterNewDeviceJSON(
+      var req = await this.requests.constructRegisterNewDeviceJSON(
         event,
         timeNow + '',
         this.method,

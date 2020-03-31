@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {Buffer} from 'buffer';
+import DeviceInfo from 'react-native-device-info';
 
 class Requests {
   /**
@@ -40,7 +41,7 @@ class Requests {
       code: code, // Code for PIN or Public Key
       algorithm: algorithm,
       device_name: this.getDeviceName(),
-      device_type: this.getDeviceType(),
+      device_type: await this.getDeviceType(),
     };
 
     if (changeCode) {
@@ -155,7 +156,7 @@ class Requests {
    * @param {string} [algorithm=null] - Algorithm used for TrustedDevice keys
    * @returns {Object} - The JSON data constructed
    */
-  constructApprovedEventJSON(
+  async constructApprovedEventJSON(
     event,
     timestamp,
     method,
@@ -167,7 +168,7 @@ class Requests {
       client_user_id: this.userID,
       issuer: this.apiKeyID,
       event: event,
-      ip: this.getIPAddress(),
+      ip: await this.getIPAddress(),
       timestamp: timestamp,
       method: method,
       code: code,
@@ -226,7 +227,7 @@ class Requests {
    * @param {boolean} approved - PublicKey for TrustedDevice or Biometric
    * @returns {Object} - The JSON data constructed
    */
-  constructRegisterNewDeviceJSON(
+  async constructRegisterNewDeviceJSON(
     event,
     timestamp,
     method,
@@ -240,7 +241,7 @@ class Requests {
       client_user_id: this.userID,
       issuer: this.apiKeyID,
       event: event,
-      ip: this.getIPAddress(),
+      ip: await this.getIPAddress(),
       timestamp: timestamp,
       method: method,
       code: signature,
@@ -250,7 +251,7 @@ class Requests {
 
       register_new_device: true,
       new_device_public_key: newPublicKey,
-      device_type: this.getDeviceType(),
+      device_type: await this.getDeviceType(),
       device_name: this.getDeviceName(),
       new_device_algorithm: newAlgo,
     };
@@ -264,12 +265,12 @@ class Requests {
    * @param {string} method
    * @returns {Object} - The JSON data constructed
    */
-  constructEventJSON(event, timestamp, method) {
+  async constructEventJSON(event, timestamp, method) {
     var data = {
       client_user_id: this.userID,
       issuer: this.apiKeyID,
       event: event,
-      ip: this.getIPAddress(),
+      ip: await this.getIPAddress(),
       timestamp: timestamp,
       method: method,
     };
@@ -393,14 +394,30 @@ class Requests {
     }
   }
 
-  getDeviceType() {
-    return 'TODO: device type';
+  async getDeviceType() {
+    try {
+      var resp = await DeviceInfo.getManufacturer();
+      console.log(resp);
+      return resp;
+    } catch (err) {
+      console.log(err);
+      return 'unknown';
+    }
   }
   getDeviceName() {
-    return 'TODO: device name';
+    var deviceID = DeviceInfo.getDeviceId();
+    var readableVersion = DeviceInfo.getReadableVersion();
+    console.log(deviceID + ' ' + readableVersion);
+    return deviceID + ' ' + readableVersion;
   }
-  getIPAddress() {
-    return 'TODO: ip address';
+  async getIPAddress() {
+    try {
+      var resp = await axios.get('http://geoip-db.com/json/');
+      console.log(resp.data);
+      return resp.data.IPv4;
+    } catch (err) {
+      return 'unknown';
+    }
   }
 }
 

@@ -1388,6 +1388,11 @@ react-native-camera@^3.19.1:
   dependencies:
     prop-types "^15.6.2"
 
+react-native-device-info@^5.5.3:
+  version "5.5.3"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-5.5.3.tgz#6652fb46c4602a1dd3a5d6a18d2266ecdf97fec7"
+  integrity sha512-bzUVTPHca+FfNco1qaOM1+idoeII8zdpGRsR+RK+DWhwp9utHZWfbkonZZ9XFm/U+i3mirNxt6oaKV+vUMjMzg==
+
 react-native-inappbrowser-reborn@^3.3.4:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/react-native-inappbrowser-reborn/-/react-native-inappbrowser-reborn-3.3.4.tgz#f3dc14f91ffe3b0a59534081788836f4f8bb3b21"
