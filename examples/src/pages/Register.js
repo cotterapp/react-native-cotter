@@ -33,14 +33,15 @@ class Register extends PureComponent {
     userID: null,
   };
   continue = async () => {
-    var login = new Login(
-      COTTER_JS_URL,
-      'myexample://auth_callback',
-      API_KEY_ID,
-      this.onError,
-      this.onSuccess,
-    );
-    await login.openAuthWithInput('EMAIL', encodeURI(this.state.email));
+    // var login = new Login(
+    //   COTTER_JS_URL,
+    //   'myexample://auth_callback',
+    //   API_KEY_ID,
+    //   this.onError,
+    //   this.onSuccess,
+    // );
+    // await login.openAuthWithInput('EMAIL', encodeURI(this.state.email));
+    this.onSuccess();
   };
 
   onError = (errorMessage, error) => {
