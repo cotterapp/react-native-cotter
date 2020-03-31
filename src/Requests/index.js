@@ -420,9 +420,15 @@ class Requests {
     try {
       var resp = await axios.get('http://geoip-db.com/json/');
       console.log(resp.data);
-      return resp.data.IPv4;
+      return {
+        ip: resp.data.IPv4,
+        location: resp.data.city,
+      };
     } catch (err) {
-      return 'unknown';
+      return {
+        ip: 'unknown',
+        location: 'unknown',
+      };
     }
   }
 }
