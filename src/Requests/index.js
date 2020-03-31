@@ -164,11 +164,13 @@ class Requests {
     publicKey,
     algorithm = null,
   ) {
+    var ipLoc = await this.getIPAddress();
     var data = {
       client_user_id: this.userID,
       issuer: this.apiKeyID,
       event: event,
-      ip: await this.getIPAddress(),
+      ip: ipLoc.ip,
+      location: ipLoc.location,
       timestamp: timestamp,
       method: method,
       code: code,
@@ -237,11 +239,13 @@ class Requests {
     newPublicKey,
     newAlgo,
   ) {
+    var ipLoc = await this.getIPAddress();
     var data = {
       client_user_id: this.userID,
       issuer: this.apiKeyID,
       event: event,
-      ip: await this.getIPAddress(),
+      ip: ipLoc.ip,
+      location: ipLoc.location,
       timestamp: timestamp,
       method: method,
       code: signature,
@@ -266,11 +270,13 @@ class Requests {
    * @returns {Object} - The JSON data constructed
    */
   async constructEventJSON(event, timestamp, method) {
+    var ipLoc = await this.getIPAddress();
     var data = {
       client_user_id: this.userID,
       issuer: this.apiKeyID,
       event: event,
-      ip: await this.getIPAddress(),
+      ip: ipLoc.ip,
+      location: ipLoc.location,
       timestamp: timestamp,
       method: method,
     };
