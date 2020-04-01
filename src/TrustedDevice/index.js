@@ -273,9 +273,6 @@ class TrustedDevice {
         this.algorithm,
         approve,
       );
-      console.log('DATA', data);
-      console.log('STR TO SIGN', stringToSign);
-      console.log('SIGNATURE', signature);
       var resp = await this.requests.createRespondEventRequest(ev.ID, data);
       console.log('RESPOND', resp);
       return resp;

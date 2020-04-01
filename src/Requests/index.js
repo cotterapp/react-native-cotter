@@ -206,6 +206,7 @@ class Requests {
       issuer: this.apiKeyID,
       event: ev.event,
       ip: ev.ip,
+      location: ev.location,
       timestamp: ev.timestamp,
       method: method,
       code: signature,

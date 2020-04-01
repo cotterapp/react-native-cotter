@@ -54,6 +54,7 @@ const defaultAuthReqText = {
 const defaultAuthApproveText = {
   title: 'Are you trying to sign in?',
   subtitle: 'Someone is trying to sign in to your account from another device',
+  subtitleError: 'Something went wrong',
   logo: cotterLogo,
   buttonNo: "No, it's not me",
   buttonYes: 'Yes',
@@ -202,14 +203,32 @@ const connectCotterWrapper = function(WrappedComponent) {
       this.hideAuthApprove();
     };
 
-    approveEvent = () => {
-      this.trustDev.approveEvent(this.state.event, true);
-      this.hideAuthApprove();
+    approveEvent = async () => {
+      try {
+        var resp = await this.trustDev.approveEvent(this.state.event, true);
+        console.log(resp);
+        if (resp.approved == true) {
+          this.hideAuthApprove();
+        } else {
+          this.setState({error: true});
+        }
+      } catch (err) {
+        this.setState({error: true});
+      }
     };
 
-    rejectEvent = () => {
-      this.trustDev.approveEvent(this.state.event, false);
-      this.hideAuthApprove();
+    rejectEvent = async () => {
+      try {
+        var resp = await this.trustDev.approveEvent(this.state.event, false);
+        console.log(resp);
+        if (resp.approved == false) {
+          this.hideAuthApprove();
+        } else {
+          this.setState({error: true});
+        }
+      } catch (err) {
+        this.setState({error: true});
+      }
     };
 
     // Show QR Code
@@ -547,7 +566,9 @@ const connectCotterWrapper = function(WrappedComponent) {
                   {authApproveText.title}
                 </Title>
                 <Subtitle style={[styles.subtitle, styles.textCenter]}>
-                  {authApproveText.subtitle}
+                  {this.state.error
+                    ? authApproveText.subtitleError
+                    : authApproveText.subtitle}
                 </Subtitle>
               </View>
               <View style={{alignSelf: 'flex-end', paddingBottom: 30}}>
