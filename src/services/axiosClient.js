@@ -1,16 +1,8 @@
 import axios from 'axios';
-
-const DEV = false;
-const STAGING = false;
-
-const COTTER_BASE_URL = DEV
-  ? 'http://localhost:1234/api/v0'
-  : STAGING
-  ? 'https://s.www.cotter.app/api/v0'
-  : 'https://www.cotter.app/api/v0';
+import Cotter from '../Cotter';
 
 var axiosInstance = axios.create({
-  baseURL: COTTER_BASE_URL,
+  baseURL: Cotter.BaseURL,
   /* other custom settings */
 });
 

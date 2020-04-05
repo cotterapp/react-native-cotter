@@ -24,6 +24,7 @@ class Requests {
    * @param {boolean} changeCode
    * @param {string} currentCode
    * @param {string} algorithm
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    * @returns {Object} - User Object
    * @throws {Object} - http error response
    */
@@ -34,6 +35,7 @@ class Requests {
     changeCode,
     currentCode,
     algorithm,
+    getOAuthToken = false,
   ) {
     var data = {
       method: method,
@@ -56,11 +58,18 @@ class Requests {
           'Content-type': 'application/json',
         },
       };
-      const path = this.baseURL + '/user/' + this.userID;
+      var path = this.baseURL + '/user/' + this.userID;
+      if (getOAuthToken) {
+        path += '?oauth_token=true';
+      }
       var resp = await axios.put(path, data, config);
       return resp.data;
     } catch (err) {
-      throw err.response.data;
+      console.log(err);
+      if (err.response) {
+        throw err.response.data;
+      }
+      throw err;
     }
   }
 
@@ -310,11 +319,15 @@ class Requests {
   /**
    * Create event that is automatically approved
    * @param {Object} req
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    * @returns {Object} - The Event Object created
    * @throws {Object} - http error response
    */
-  async createApprovedEventRequest(req) {
-    const path = '/event/create';
+  async createApprovedEventRequest(req, getOAuthToken = false) {
+    var path = '/event/create';
+    if (getOAuthToken) {
+      path += '?oauth_token=true';
+    }
     try {
       var resp = await this.createEventRequest(req, path);
       return resp;
@@ -359,10 +372,11 @@ class Requests {
   /**
    * Get an event based on the ID
    * @param {number} eventID
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    * @returns {Object} - The Event Object created
    * @throws {Object} - http error response
    */
-  async getEvent(eventID) {
+  async getEvent(eventID, getOAuthToken = false) {
     try {
       var config = {
         headers: {
@@ -371,7 +385,10 @@ class Requests {
           'Content-type': 'application/json',
         },
       };
-      const path = '/event/get/' + eventID;
+      var path = '/event/get/' + eventID;
+      if (getOAuthToken) {
+        path += '?oauth_token=true';
+      }
       var resp = await axios.get(this.baseURL + path, config);
       return resp.data;
     } catch (err) {
@@ -401,6 +418,32 @@ class Requests {
     }
   }
 
+  /**
+   * Get Access Token from Refresh Token
+   * @param {string} refreshToken - Refresh Token
+   * @returns {Object} - The Event Object created
+   * @throws {Object} - http error response
+   */
+  async getTokensFromRefreshToken(refreshToken) {
+    try {
+      var config = {
+        headers: {
+          API_KEY_ID: this.apiKeyID,
+          'Content-type': 'application/json',
+        },
+      };
+      const path = '/token';
+      const req = {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      };
+      var resp = await axios.post(this.baseURL + path, req, config);
+      return resp.data;
+    } catch (err) {
+      throw err.response.data;
+    }
+  }
+
   async getDeviceType() {
     try {
       var resp = await DeviceInfo.getManufacturer();
@@ -411,20 +454,30 @@ class Requests {
       return 'unknown';
     }
   }
+
   getDeviceName() {
     var deviceID = DeviceInfo.getDeviceId();
     var readableVersion = DeviceInfo.getReadableVersion();
     console.log(deviceID + ' ' + readableVersion);
     return deviceID + ' ' + readableVersion;
   }
+
   async getIPAddress() {
+    console.log('GET IP ADDRESS');
     try {
       var resp = await axios.get('http://geoip-db.com/json/');
-      console.log(resp.data);
-      return {
-        ip: resp.data.IPv4,
-        location: resp.data.city,
-      };
+      if (resp.data) {
+        console.log(resp.data);
+        return {
+          ip: resp.data.IPv4,
+          location: resp.data.city,
+        };
+      } else {
+        return {
+          ip: 'unknown',
+          location: 'unknown',
+        };
+      }
     } catch (err) {
       return {
         ip: 'unknown',

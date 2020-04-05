@@ -10,6 +10,7 @@
     "type": "git",
     "url": "github.com/cotterapp/react-native-cotter"
   },
+  "homepage": "https://github.com/cotterapp/react-native-cotter#readme",
   "keywords": [
     "Cotter",
     "FIDO",
@@ -36,6 +37,9 @@
   "dependencies": {
     "axios": "^0.19.2",
     "buffer": "^5.4.3",
+    "cotter-jwt-js": "^0.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "jwk-to-pem": "^2.0.3",
     "react-native-camera": "^3.19.1",
     "react-native-device-info": "^5.5.3",
     "react-native-inappbrowser-reborn": "^3.3.4",

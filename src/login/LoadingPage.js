@@ -3,6 +3,8 @@ import {View, ActivityIndicator} from 'react-native';
 import colors from '../assets/colors';
 import axiosClient from '../services/axiosClient';
 import LoginManager from './LoginManager';
+import Cotter from '../Cotter';
+import TokenHandler from '../TokenHandler';
 
 export default class LoadingPage extends Component {
   constructor(props) {
@@ -34,12 +36,18 @@ export default class LoadingPage extends Component {
   }
 
   getIdentity(auth_code, state, challenge_id) {
+    const getOAuthToken = LoginManager.getGetOAuthToken();
     var path = '/verify/get_identity';
+    if (getOAuthToken) {
+      path += '?oauth_token=true';
+    }
     var loginReq = LoginManager.getLoginRegistry(state);
 
     if (state != loginReq.state) {
       loginReq.onError('State is not the same', {});
     }
+
+    const tokenHandler = new TokenHandler(Cotter.BaseURL, loginReq.apiKeyID);
 
     var data = {
       code_verifier: loginReq.codeVerifier,
@@ -61,11 +69,14 @@ export default class LoadingPage extends Component {
 
     axiosClient
       .post(path, data, config)
-      .then(resp => {
+      .then((resp) => {
         this.props.navigation.goBack();
+        if (getOAuthToken) {
+          tokenHandler.storeTokens(resp.oauth_token);
+        }
         loginReq.onSuccess(resp.data);
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
         loginReq.onError('Something went wrong', e.response.data);
         this.props.navigation.goBack();

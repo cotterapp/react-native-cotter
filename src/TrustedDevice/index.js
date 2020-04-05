@@ -4,6 +4,7 @@ import {Buffer} from 'buffer';
 import Requests from '../Requests';
 import {saveItemSecure, getItemSecure} from '../services/deviceStorage';
 import {CotterAuthModal} from './wrapper';
+import TokenHandler from '../TokenHandler';
 
 const trustedDeviceMethod = 'TRUSTED_DEVICE';
 const keyStoreAlias = 'COTTER_TRUSTED_DEVICE_KEY';
@@ -39,6 +40,12 @@ class TrustedDevice {
     this.userID = userID;
     this.requests = new Requests(baseURL, apiKeyID, apiSecretKey, userID);
     this.algorithm = algorithm;
+    this.tokenHandler = new TokenHandler(
+      baseURL,
+      apiKeyID,
+      apiSecretKey,
+      userID,
+    );
   }
 
   getKeystoreAliasPubKey() {
@@ -88,8 +95,9 @@ class TrustedDevice {
   /**
    * @param {successCallback} onSuccess
    * @param {errorCallback} onError
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
-  enrollDevice(onSuccess, onError) {
+  enrollDevice(onSuccess, onError, getOAuthToken = false) {
     const {RNRandomBytes} = NativeModules;
     RNRandomBytes.randomBytes(32, (_, bytes) => {
       seed = Buffer.from(bytes, 'base64');
@@ -101,11 +109,22 @@ class TrustedDevice {
       saveItemSecure(this.getKeystoreAliasSecKey(), secKey);
 
       this.requests
-        .updateMethod(this.method, pubKey, true, false, null, this.algorithm)
-        .then(resp => {
+        .updateMethod(
+          this.method,
+          pubKey,
+          true,
+          false,
+          null,
+          this.algorithm,
+          getOAuthToken,
+        )
+        .then((resp) => {
+          if (getOAuthToken) {
+            this.tokenHandler.storeTokens(resp.oauth_token);
+          }
           onSuccess(resp);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
           var errMsg = err.msg ? err.msg : 'Something went wrong';
           onError(errMsg, err);
@@ -150,27 +169,36 @@ class TrustedDevice {
    * @param {successCallback} onSuccess
    * @param {errorCallback} onError
    * @param {Object} [authRequestText={}] - Customization texts for the Auth Request modal
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
-  async requestAuth(event, onSuccess, onError, authRequestText = {}) {
+  async requestAuth(
+    event,
+    onSuccess,
+    onError,
+    authRequestText = {},
+    getOAuthToken = false,
+  ) {
     var thisDeviceTrusted = await this.trustedDeviceEnrolled();
     if (thisDeviceTrusted) {
-      await this.authorizeDevice(event, onSuccess, onError);
+      await this.authorizeDevice(event, onSuccess, onError, getOAuthToken);
     } else {
       await this.requestAuthFromNonTrusted(
         event,
         onSuccess,
         onError,
         authRequestText,
+        getOAuthToken,
       );
     }
   }
   /**
    * Authorize an event with this device, assuming this device is a trusted device
    * @param {string} event - Name tag of event (LOGIN, TRANSACTION, etc)
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    * @param {successCallback} onSuccess
    * @param {errorCallback} onError
    */
-  async authorizeDevice(event, onSuccess, onError) {
+  async authorizeDevice(event, onSuccess, onError, getOAuthToken = false) {
     var timestamp = Math.round(new Date().getTime() / 1000).toString();
     var stringToSign = this.requests.constructApprovedEventMsg(
       event,
@@ -188,8 +216,14 @@ class TrustedDevice {
         pubKey,
         this.algorithm,
       );
-      var resp = await this.requests.createApprovedEventRequest(data);
+      var resp = await this.requests.createApprovedEventRequest(
+        data,
+        getOAuthToken,
+      );
       console.log(resp);
+      if (getOAuthToken === true) {
+        this.tokenHandler.storeTokens(resp.oauth_token);
+      }
       onSuccess(resp);
     } catch (err) {
       console.log(err);
@@ -203,12 +237,14 @@ class TrustedDevice {
    * @param {successCallback} onSuccess
    * @param {errorCallback} onError
    * @param {Object} [authRequestText={}] - Customization texts for the Auth Request modal
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
   async requestAuthFromNonTrusted(
     event,
     onSuccess,
     onError,
     authRequestText = {},
+    getOAuthToken = false,
   ) {
     var timestamp = Math.round(new Date().getTime() / 1000).toString();
     try {
@@ -225,6 +261,7 @@ class TrustedDevice {
         this,
         onSuccess,
         onError,
+        getOAuthToken,
       );
     } catch (err) {
       onError('Something went wrong', err);
@@ -362,10 +399,12 @@ class TrustedDevice {
     var timeNow = Math.floor(new Date().getTime() / 1000);
     var timeExpire = 60 * 3; // in seconds
     if (newTimeStamp < timeNow - timeExpire) {
-      throw 'The QR Code is expired. Current timestamp = ' +
+      throw (
+        'The QR Code is expired. Current timestamp = ' +
         timestamp +
         ', QRCode was created at ' +
-        newTimeStamp;
+        newTimeStamp
+      );
     }
 
     // Check if issuer == api key id

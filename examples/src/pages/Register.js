@@ -33,15 +33,16 @@ class Register extends PureComponent {
     userID: null,
   };
   continue = async () => {
-    // var login = new Login(
-    //   COTTER_JS_URL,
-    //   'myexample://auth_callback',
-    //   API_KEY_ID,
-    //   this.onError,
-    //   this.onSuccess,
-    // );
-    // await login.openAuthWithInput('EMAIL', encodeURI(this.state.email));
-    this.onSuccess();
+    var login = new Login(
+      COTTER_JS_URL,
+      'myexample://auth_callback',
+      API_KEY_ID,
+      this.onError,
+      this.onSuccess,
+      true,
+    );
+    await login.openAuthWithInput('EMAIL', encodeURI(this.state.email));
+    // this.onSuccess();
   };
 
   onError = (errorMessage, error) => {
@@ -49,7 +50,7 @@ class Register extends PureComponent {
     console.log(error);
   };
 
-  onSuccess = response => {
+  onSuccess = (response) => {
     console.log(response);
     this.setState({response});
     // alert('Registering to backend');
@@ -63,11 +64,15 @@ class Register extends PureComponent {
       userID,
     );
     // Enroll device as Trusted Device
-    cotter.trustedDevice.enrollDevice(this.onEnrollSuccess, this.onEnrollError);
+    cotter.trustedDevice.enrollDevice(
+      this.onEnrollSuccess,
+      this.onEnrollError,
+      true,
+    );
     /* 1. Navigate to the callbackScreenName route with params */
   };
 
-  onEnrollSuccess = resp => {
+  onEnrollSuccess = (resp) => {
     console.log(resp);
     this.props.navigation.navigate('RegisterSuccess', {
       trustedDeviceResp: resp,
@@ -75,7 +80,7 @@ class Register extends PureComponent {
       userID: this.state.userID,
     });
   };
-  onEnrollError = err => {
+  onEnrollError = (err) => {
     alert(err);
     console.log(err);
     // this.props.navigation.navigate('RegisterSuccess', {
@@ -85,7 +90,7 @@ class Register extends PureComponent {
     // });
   };
 
-  registerUser = response => {
+  registerUser = (response) => {
     // register in backend
     // check cotter's token
     // register user in Cotter with some user ID
@@ -116,7 +121,7 @@ class Register extends PureComponent {
                 placeholder={'e.g. email@example.com'}
                 style={{fontSize: 17}}
                 value={this.state.email}
-                onChangeText={text => this.setState({email: text})}
+                onChangeText={(text) => this.setState({email: text})}
                 autoCapitalize="none"
               />
             </InputContainer>

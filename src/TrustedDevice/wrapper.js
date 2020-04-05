@@ -76,7 +76,7 @@ const defaultScanQRText = {
     'Camera is blocked. Please go to Settings and allow access to camera.',
 };
 
-const connectCotterWrapper = function(WrappedComponent) {
+const connectCotterWrapper = function (WrappedComponent) {
   return class extends Component {
     state = {
       visibleAuthRequest: false,
@@ -84,6 +84,7 @@ const connectCotterWrapper = function(WrappedComponent) {
       defaultAuthReqText: defaultAuthReqText,
       eventID: null,
       seconds: AUTH_REQUEST_DEADLINE,
+      authRequestGetOAuthToken: false,
 
       // Auth Approve Modal
       visibleAuthApprove: false,
@@ -115,7 +116,14 @@ const connectCotterWrapper = function(WrappedComponent) {
       api.showQRScan = this.showQRScan;
     }
 
-    showAuthRequest = (authReqText, eventID, trustDev, onSuccess, onError) => {
+    showAuthRequest = (
+      authReqText,
+      eventID,
+      trustDev,
+      onSuccess,
+      onError,
+      getOAuthToken = false,
+    ) => {
       this.setState({
         visibleAuthRequest: true,
         authReqText: authReqText,
@@ -123,6 +131,7 @@ const connectCotterWrapper = function(WrappedComponent) {
         defaultAuthReqText: defaultAuthReqText,
         error: false,
         seconds: AUTH_REQUEST_DEADLINE,
+        authRequestGetOAuthToken: getOAuthToken,
       });
       this.trustDev = trustDev;
       this.onAuthReqSuccess = onSuccess;
@@ -137,7 +146,7 @@ const connectCotterWrapper = function(WrappedComponent) {
     startTimerAuthRequest = () => {
       var deadline = new Date().getTime() + (AUTH_REQUEST_DEADLINE + 1) * 1000;
       var self = this;
-      var x = setInterval(function() {
+      var x = setInterval(function () {
         var now = new Date().getTime();
         var t = deadline - now;
         var seconds = Math.floor((t % (1000 * 60)) / 1000);
@@ -161,16 +170,20 @@ const connectCotterWrapper = function(WrappedComponent) {
 
     getEvent = () => {
       this.trustDev.requests
-        .getEvent(this.state.eventID)
-        .then(resp => {
+        .getEvent(this.state.eventID, this.state.authRequestGetOAuthToken)
+        .then((resp) => {
           console.log('poll', resp);
-          if (resp.approved === true) {
+          if (resp.approved) {
             this.onAuthReqSuccess(resp);
             clearInterval(this.timerAuthReq);
             this.hideAuthRequest();
+
+            if (this.state.authRequestGetOAuthToken === true) {
+              this.trustDev.tokenHandler.storeTokens(resp.oauth_token);
+            }
           }
         })
-        .catch(err => {
+        .catch((err) => {
           this.errorAndCloseAuthReq('Something went wrong', err);
         });
     };
@@ -267,7 +280,7 @@ const connectCotterWrapper = function(WrappedComponent) {
     startTimerQRShow = () => {
       var deadline = new Date().getTime() + (QR_SHOW_DEADLINE + 1) * 1000;
       var self = this;
-      var x = setInterval(function() {
+      var x = setInterval(function () {
         var now = new Date().getTime();
         var t = deadline - now;
         var seconds = Math.floor((t % (1000 * 60)) / 1000);
@@ -311,7 +324,7 @@ const connectCotterWrapper = function(WrappedComponent) {
     hideQRScan = () => {
       this.setState({visibleScanQRCode: false});
     };
-    respondToPermission = result => {
+    respondToPermission = (result) => {
       console.log(result);
       switch (result) {
         case RESULTS.UNAVAILABLE:
@@ -327,7 +340,7 @@ const connectCotterWrapper = function(WrappedComponent) {
               }),
             )
               .then(this.respondToPermission)
-              .catch(error => this.requestCameraOpenSettings());
+              .catch((error) => this.requestCameraOpenSettings());
           } else {
             alert(this.state.defaultScanQRText.blocked);
             this.setState({cameraAsked: false});
@@ -370,7 +383,7 @@ const connectCotterWrapper = function(WrappedComponent) {
         }),
       )
         .then(this.respondToPermission)
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
           alert(this.state.defaultScanQRText.blocked);
         });
@@ -410,7 +423,7 @@ const connectCotterWrapper = function(WrappedComponent) {
       }, AUTH_REQUEST_ERROR_DURATION * 1000);
     };
 
-    submitScannedCode = async e => {
+    submitScannedCode = async (e) => {
       var scannedCode = e.data;
       try {
         var resp = await this.trustDev.enrollOtherDevice(scannedCode);

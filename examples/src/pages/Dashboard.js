@@ -38,10 +38,10 @@ function Dashboard({route}) {
   const checkThisDeviceTrusted = () => {
     cotter.trustedDevice
       .trustedDeviceEnrolled()
-      .then(trusted => {
+      .then((trusted) => {
         setTrustedDev(trusted);
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 
   const checkNewEvent = () => {
@@ -68,6 +68,19 @@ function Dashboard({route}) {
     } catch (err) {
       alert(err);
     }
+  };
+
+  const getAccessToken = async () => {
+    try {
+      var accessToken = await cotter.tokenHandler.getAccessToken();
+      console.log('Access Token', accessToken);
+    } catch (err) {
+      console.log('Access Token Error', err);
+    }
+  };
+
+  const logOut = () => {
+    cotter.tokenHandler.removeTokens();
   };
 
   return (
@@ -123,6 +136,24 @@ function Dashboard({route}) {
           <Title style={[styles.text, {textAlign: 'center'}]}>
             Remove This Device
           </Title>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer style={{marginTop: 30}}>
+        <Button
+          onPress={getAccessToken}
+          backgroundColor={colors.lightPurple}
+          color={colors.invertTextColor}>
+          <Title style={[styles.text, {textAlign: 'center'}]}>
+            Read Access Token
+          </Title>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer style={{marginTop: 30}}>
+        <Button
+          onPress={logOut}
+          backgroundColor={colors.lightPurple}
+          color={colors.invertTextColor}>
+          <Title style={[styles.text, {textAlign: 'center'}]}>Log Out</Title>
         </Button>
       </ButtonContainer>
     </View>

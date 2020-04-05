@@ -27,14 +27,23 @@ class Login {
    * @param {string} apiKeyID
    * @param {errorCallback} onError
    * @param {successCallback} onSuccess
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
-  constructor(baseURL, callbackURL, apiKeyID, onError, onSuccess) {
+  constructor(
+    baseURL,
+    callbackURL,
+    apiKeyID,
+    onError,
+    onSuccess,
+    getOAuthToken = false,
+  ) {
     this.baseURL = baseURL;
     this.callbackURL = callbackURL;
     this.apiKeyID = apiKeyID;
     this.state = this.generateState();
     this.onError = onError;
     this.onSuccess = onSuccess;
+    LoginManager.setGetOAuthToken(getOAuthToken);
   }
 
   async generateCodeVerifierAndChallenge() {
@@ -54,9 +63,7 @@ class Login {
   }
 
   generateState() {
-    return Math.random()
-      .toString(36)
-      .substring(2, 15);
+    return Math.random().toString(36).substring(2, 15);
   }
 
   constructURLPath(identifierType) {
@@ -98,7 +105,7 @@ class Login {
           showTitle: false,
           enableUrlBarHiding: true,
           enableDefaultShare: true,
-        }).then(response => {
+        }).then((response) => {
           if (response.type === 'success' && response.url) {
             Linking.openURL(response.url);
           }
@@ -128,7 +135,7 @@ class Login {
           showTitle: false,
           enableUrlBarHiding: true,
           enableDefaultShare: true,
-        }).then(response => {
+        }).then((response) => {
           if (response.type === 'success' && response.url) {
             Linking.openURL(response.url);
           }

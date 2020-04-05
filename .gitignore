@@ -9,3 +9,6 @@ dist
 
 # Dependency directory
 node_modules
+
+# Examples (If applicable to your project)
+examples

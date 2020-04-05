@@ -41,6 +41,8 @@ class Login extends PureComponent {
       'LOGIN',
       this.onRequestSuccess,
       this.onRequestError,
+      {},
+      true,
     );
   };
 
@@ -49,7 +51,7 @@ class Login extends PureComponent {
     console.log(error);
   };
 
-  onRequestSuccess = response => {
+  onRequestSuccess = (response) => {
     console.log(response);
 
     console.log('Success', new Date().getTime());
@@ -57,9 +59,9 @@ class Login extends PureComponent {
       userID: this.state.userID,
     });
   };
-  getUserID = async email => {
+  getUserID = async (email) => {
     // get user ID for the email
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
     var userID = USER_ID;
     this.setState({userID: userID});
     return userID;
@@ -79,7 +81,7 @@ class Login extends PureComponent {
                 placeholder={'e.g. +12345678910'}
                 style={{fontSize: 17}}
                 value={this.state.email}
-                onChangeText={text => this.setState({email: text})}
+                onChangeText={(text) => this.setState({email: text})}
                 autoCapitalize="none"
               />
             </InputContainer>
