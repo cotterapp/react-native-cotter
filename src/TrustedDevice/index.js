@@ -67,8 +67,12 @@ class TrustedDevice {
     }
   }
   async getSecretKey() {
-    var secKey = await getItemSecure(this.getKeystoreAliasSecKey());
-    return secKey;
+    try {
+      var secKey = await getItemSecure(this.getKeystoreAliasSecKey());
+      return secKey;
+    } catch (e) {
+      throw 'NO_SEC_KEY';
+    }
   }
 
   /**
@@ -97,16 +101,31 @@ class TrustedDevice {
    * @param {errorCallback} onError
    * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
-  enrollDevice(onSuccess, onError, getOAuthToken = false) {
+  async enrollDevice(onSuccess, onError, getOAuthToken = false) {
+    var getNewKeys = false;
+    try {
+      var pubKeyOrig = await this.getPublicKey();
+      var secKeyOrig = await this.getSecretKey();
+    } catch (err) {
+      if (err == 'NO_PUB_KEY' || err == 'NO_SEC_KEY') {
+        getNewKeys = true;
+      } else {
+        throw err;
+      }
+    }
     const {RNRandomBytes} = NativeModules;
     RNRandomBytes.randomBytes(32, (_, bytes) => {
-      seed = Buffer.from(bytes, 'base64');
+      var pubKey = pubKeyOrig;
+      var secKey = secKeyOrig;
 
-      var keypair = sign.keyPair.fromSeed(seed);
-      const secKey = new Buffer(keypair.secretKey).toString('base64');
-      const pubKey = new Buffer(keypair.publicKey).toString('base64');
-      saveItemSecure(this.getKeystoreAliasPubKey(), pubKey);
-      saveItemSecure(this.getKeystoreAliasSecKey(), secKey);
+      if (getNewKeys) {
+        seed = Buffer.from(bytes, 'base64');
+        var keypair = sign.keyPair.fromSeed(seed);
+        secKey = new Buffer(keypair.secretKey).toString('base64');
+        pubKey = new Buffer(keypair.publicKey).toString('base64');
+        saveItemSecure(this.getKeystoreAliasPubKey(), pubKey);
+        saveItemSecure(this.getKeystoreAliasSecKey(), secKey);
+      }
 
       this.requests
         .updateMethod(

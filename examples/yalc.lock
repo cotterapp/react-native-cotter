@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "react-native-cotter": {
-      "signature": "2c06b9d9fb9659b6fda2ea46bf847c94",
+      "signature": "c43bcdaadfc35a69eaa532d50a6ca91f",
       "file": true,
       "replaced": "^0.1.9"
     }

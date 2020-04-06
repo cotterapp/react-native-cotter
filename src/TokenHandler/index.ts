@@ -44,6 +44,9 @@ export default class TokenHandler {
 
   storeTokens(oauthTokens: OAuthToken) {
     console.log('Storing Tokens');
+    if (oauthTokens === null || oauthTokens === undefined) {
+      throw new Error('oauthTokens are not specified (null or undefined)');
+    }
     this.setAccessToken(oauthTokens.access_token);
     this.setIDToken(oauthTokens.id_token);
     this.setTokenType(oauthTokens.token_type);

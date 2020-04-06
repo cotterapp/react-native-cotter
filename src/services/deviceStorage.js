@@ -4,13 +4,13 @@ const options = {accessible: ACCESSIBLE.WHEN_UNLOCKED};
 
 export const saveItemSecure = (key, value, callback, errorCallback) =>
   RNSecureStorage.set(key, value, options).then(
-    res => {
+    (res) => {
       if (callback) {
         callback(res);
       }
       return res;
     },
-    err => {
+    (err) => {
       if (errorCallback) {
         errorCallback(err || 'Error');
       }
@@ -18,10 +18,10 @@ export const saveItemSecure = (key, value, callback, errorCallback) =>
     },
   );
 
-export const getItemSecure = async key => {
+export const getItemSecure = async (key) => {
   try {
     var value = await RNSecureStorage.get(key);
-    console.log('get ' + key + ' ' + value);
+    console.log('get ' + key);
     return value;
   } catch (err) {
     console.log('error get ' + key + ' ' + err);
@@ -31,13 +31,13 @@ export const getItemSecure = async key => {
 
 export const removeItemSecure = (key, callback, errorCallback) =>
   RNSecureStorage.remove(key)
-    .then(val => {
+    .then((val) => {
       if (callback) {
         callback(val);
       }
       return val;
     })
-    .catch(err => {
+    .catch((err) => {
       if (errorCallback) {
         errorCallback(err.message || 'ERROR');
       }

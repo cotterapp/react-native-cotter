@@ -43,7 +43,7 @@ class Login {
     this.state = this.generateState();
     this.onError = onError;
     this.onSuccess = onSuccess;
-    LoginManager.setGetOAuthToken(getOAuthToken);
+    this.getOAuthToken = getOAuthToken;
   }
 
   async generateCodeVerifierAndChallenge() {
