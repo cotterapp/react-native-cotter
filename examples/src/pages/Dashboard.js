@@ -5,6 +5,7 @@ import colors from '../assets/colors';
 import {Button, ButtonContainer} from '../components/Button';
 import {Cotter} from 'react-native-cotter';
 import {API_KEY_ID, API_SECRET_KEY, USER_ID, COTTER_BASE_URL} from '../apiKeys';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const dashboardImg = require('../assets/images/hello-app-dashboard.png');
 const winWidth = Dimensions.get('window').width;
@@ -38,10 +39,10 @@ function Dashboard({route}) {
   const checkThisDeviceTrusted = () => {
     cotter.trustedDevice
       .trustedDeviceEnrolled()
-      .then((trusted) => {
+      .then(trusted => {
         setTrustedDev(trusted);
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   };
 
   const checkNewEvent = () => {
@@ -79,20 +80,26 @@ function Dashboard({route}) {
     }
   };
 
+  const getIDToken = async () => {
+    try {
+      var idToken = await cotter.tokenHandler.getIDToken();
+      console.log('ID Token', idToken);
+    } catch (err) {
+      console.log('ID Token Error', err);
+    }
+  };
+
   const logOut = () => {
     cotter.tokenHandler.removeTokens();
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/* <Image
         source={dashboardImg}
         style={{width: winWidth, height: winHeight, resizeMode: 'cover'}}
       /> */}
-
-      <Title style={styles.title} style={{marginTop: 30}}>
-        Dashboard
-      </Title>
+      <Title style={styles.title}>Dashboard</Title>
       <Subtitle style={styles.subtitle}>
         {trustedDev
           ? 'This is a trusted device'
@@ -150,20 +157,30 @@ function Dashboard({route}) {
       </ButtonContainer>
       <ButtonContainer style={{marginTop: 30}}>
         <Button
+          onPress={getIDToken}
+          backgroundColor={colors.lightPurple}
+          color={colors.invertTextColor}>
+          <Title style={[styles.text, {textAlign: 'center'}]}>
+            Read ID Token
+          </Title>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer style={{marginTop: 30}}>
+        <Button
           onPress={logOut}
           backgroundColor={colors.lightPurple}
           color={colors.invertTextColor}>
           <Title style={[styles.text, {textAlign: 'center'}]}>Log Out</Title>
         </Button>
       </ButtonContainer>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: winHeight,
+    minHeight: winHeight,
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',

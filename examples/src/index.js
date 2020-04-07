@@ -10,7 +10,7 @@ function App() {
   const {getInitialState} = useLinking(ref, {
     prefixes: ['https://myexample.cotter.app', 'myexample://'],
     config: {
-      CotterLoadingLogin: 'auth_callback',
+      CotterLoadingVerify: 'auth_callback',
     },
   });
 
@@ -20,16 +20,16 @@ function App() {
   React.useEffect(() => {
     Promise.race([
       getInitialState(),
-      new Promise(resolve =>
+      new Promise((resolve) =>
         // Timeout in 150ms if `getInitialState` doesn't resolve
         // Workaround for https://github.com/facebook/react-native/issues/25675
         setTimeout(resolve, 150),
       ),
     ])
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
       })
-      .then(state => {
+      .then((state) => {
         if (state !== undefined) {
           setInitialState(state);
         }

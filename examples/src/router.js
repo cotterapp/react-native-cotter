@@ -52,7 +52,7 @@ function Router() {
         options={{headerShown: false}}
       />
       <RootStack.Screen
-        name="CotterLoadingLogin"
+        name="CotterLoadingVerify"
         component={LoadingPage}
         options={{headerShown: false}}
       />
