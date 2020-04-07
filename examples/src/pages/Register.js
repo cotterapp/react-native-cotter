@@ -7,7 +7,7 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {Login, Cotter} from 'react-native-cotter';
+import {Verify, Cotter} from 'react-native-cotter';
 import colors from '../assets/colors';
 import {Title} from '../components/Text';
 import {Button, ButtonImage, ButtonContainer} from '../components/Button';
@@ -33,15 +33,16 @@ class Register extends PureComponent {
     userID: null,
   };
   continue = async () => {
-    var login = new Login(
+    var verify = new Verify(
       COTTER_JS_URL,
+      COTTER_BASE_URL,
       'myexample://auth_callback',
       API_KEY_ID,
       this.onError,
       this.onSuccess,
-      true,
+      (getOAuthToken = true),
     );
-    await login.openAuthWithInput('EMAIL', encodeURI(this.state.email));
+    await verify.openAuthWithInput('EMAIL', encodeURI(this.state.email));
     // this.onSuccess();
   };
 
@@ -67,7 +68,7 @@ class Register extends PureComponent {
     cotter.trustedDevice.enrollDevice(
       this.onEnrollSuccess,
       this.onEnrollError,
-      true,
+      (getOAuthToken = true),
     );
     /* 1. Navigate to the callbackScreenName route with params */
   };
@@ -76,7 +77,7 @@ class Register extends PureComponent {
     console.log(resp);
     this.props.navigation.navigate('RegisterSuccess', {
       trustedDeviceResp: resp,
-      loginResp: this.state.response,
+      verifyResp: this.state.response,
       userID: this.state.userID,
     });
   };
@@ -85,7 +86,7 @@ class Register extends PureComponent {
     console.log(err);
     // this.props.navigation.navigate('RegisterSuccess', {
     //   trustedDeviceResp: err,
-    //   loginResp: this.state.response,
+    //   verifyResp: this.state.response,
     //   userID: this.state.userID,
     // });
   };

@@ -42,7 +42,7 @@ class Login extends PureComponent {
       this.onRequestSuccess,
       this.onRequestError,
       {},
-      true,
+      (getOAuthToken = true),
     );
   };
 

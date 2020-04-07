@@ -1,5 +1,5 @@
-import Login from './src/Login/Login';
-import LoadingPage from './src/Login/LoadingPage';
+import Verify from './src/Verify/Verify';
+import LoadingPage from './src/Verify/LoadingPage';
 import Cotter from './src/Cotter';
 import connectCotterWrapper from './src/TrustedDevice/wrapper';
-export {Login, LoadingPage, Cotter, connectCotterWrapper};
+export {Verify, LoadingPage, Cotter, connectCotterWrapper};

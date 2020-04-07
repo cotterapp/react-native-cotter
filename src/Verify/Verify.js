@@ -1,12 +1,12 @@
 import {Linking, Alert} from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
-import LoginManager from './LoginManager';
+import VerifyManager from './VerifyManager';
 import {sha256} from 'react-native-sha256';
 import {generateSecureRandom} from 'react-native-securerandom';
 import {Buffer} from 'buffer';
 import {hexToBytes} from './utils';
 
-class Login {
+class Verify {
   /**
    * This callback type is called `successCallback` and is displayed as a global symbol.
    * It receives an object of the loginResponse
@@ -22,7 +22,7 @@ class Login {
    */
 
   /**
-   * @param {string} baseURL
+   * @param {string} jsBaseURL
    * @param {string} callbackURL
    * @param {string} apiKeyID
    * @param {errorCallback} onError
@@ -30,14 +30,16 @@ class Login {
    * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
   constructor(
-    baseURL,
+    jsBaseURL,
+    backendBaseURL,
     callbackURL,
     apiKeyID,
     onError,
     onSuccess,
     getOAuthToken = false,
   ) {
-    this.baseURL = baseURL;
+    this.jsBaseURL = jsBaseURL;
+    this.backendBaseURL = backendBaseURL;
     this.callbackURL = callbackURL;
     this.apiKeyID = apiKeyID;
     this.state = this.generateState();
@@ -67,7 +69,7 @@ class Login {
   }
 
   constructURLPath(identifierType) {
-    var url = `${this.baseURL}?api_key=${this.apiKeyID}`;
+    var url = `${this.jsBaseURL}?api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;
     url = url + `&code_challenge=${this.codeChallenge}`;
@@ -76,7 +78,7 @@ class Login {
   }
 
   constructURLPathWithInput(identifierType, identifier) {
-    var url = `${this.baseURL}?direct_login=true`;
+    var url = `${this.jsBaseURL}?direct_login=true`;
     url = url + `&api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;
@@ -96,7 +98,7 @@ class Login {
       const url = this.constructURLPath(identifierType);
       this.authURL = url;
       console.log(url);
-      LoginManager.addLoginRegistry(this, this.state);
+      VerifyManager.addRegistry(this, this.state);
       if (await InAppBrowser.isAvailable()) {
         InAppBrowser.openAuth(url, this.callbackURL, {
           // iOS Properties
@@ -126,7 +128,7 @@ class Login {
       const url = this.constructURLPathWithInput(identifierType, identifier);
       this.authURL = url;
       console.log(url);
-      LoginManager.addLoginRegistry(this, this.state);
+      VerifyManager.addRegistry(this, this.state);
       if (await InAppBrowser.isAvailable()) {
         InAppBrowser.openAuth(url, this.callbackURL, {
           // iOS Properties
@@ -147,4 +149,4 @@ class Login {
   }
 }
 
-export default Login;
+export default Verify;
