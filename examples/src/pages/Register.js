@@ -42,7 +42,7 @@ class Register extends PureComponent {
       this.onSuccess,
       (getOAuthToken = true),
     );
-    await verify.openAuthWithInput('EMAIL', encodeURI(this.state.email));
+    await verify.openAuth('PHONE', ['SMS', 'WHATSAPP']);
     // this.onSuccess();
   };
 
@@ -51,7 +51,7 @@ class Register extends PureComponent {
     console.log(error);
   };
 
-  onSuccess = (response) => {
+  onSuccess = response => {
     console.log(response);
     this.setState({response});
     // alert('Registering to backend');
@@ -73,7 +73,7 @@ class Register extends PureComponent {
     /* 1. Navigate to the callbackScreenName route with params */
   };
 
-  onEnrollSuccess = (resp) => {
+  onEnrollSuccess = resp => {
     console.log(resp);
     this.props.navigation.navigate('RegisterSuccess', {
       trustedDeviceResp: resp,
@@ -81,7 +81,7 @@ class Register extends PureComponent {
       userID: this.state.userID,
     });
   };
-  onEnrollError = (err) => {
+  onEnrollError = err => {
     alert(err);
     console.log(err);
     // this.props.navigation.navigate('RegisterSuccess', {
@@ -91,7 +91,7 @@ class Register extends PureComponent {
     // });
   };
 
-  registerUser = (response) => {
+  registerUser = response => {
     // register in backend
     // check cotter's token
     // register user in Cotter with some user ID
@@ -122,7 +122,7 @@ class Register extends PureComponent {
                 placeholder={'e.g. email@example.com'}
                 style={{fontSize: 17}}
                 value={this.state.email}
-                onChangeText={(text) => this.setState({email: text})}
+                onChangeText={text => this.setState({email: text})}
                 autoCapitalize="none"
               />
             </InputContainer>
