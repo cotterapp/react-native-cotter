@@ -127,7 +127,10 @@ class Verify {
 
     await this.generateCodeVerifierAndChallenge();
     try {
-      const url = this.constructURLPath(identifierType, phoneChannels);
+      const url = this.constructURLPath(
+        identifierType,
+        identifierType === 'PHONE' ? phoneChannels : null,
+      );
       this.authURL = url;
       console.log(url);
       VerifyManager.addRegistry(this, this.state);
@@ -170,7 +173,7 @@ class Verify {
       const url = this.constructURLPathWithInput(
         identifierType,
         identifier,
-        channel,
+        identifierType === 'PHONE' ? channel : null,
       );
       this.authURL = url;
       console.log(url);
