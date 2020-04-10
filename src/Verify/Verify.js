@@ -116,6 +116,9 @@ class Verify {
     }
     phoneChannels.forEach((v) => {
       if (!validPhoneChannels.includes(v)) {
+        this.onError(
+          `Invalid phone channel ${v}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+        );
         throw new Error(
           `Invalid phone channel ${v}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
         );
@@ -154,8 +157,11 @@ class Verify {
    */
   async openAuthWithInput(identifierType, identifier, channel = smsChannel) {
     if (!validPhoneChannels.includes(channel)) {
+      this.onError(
+        `Invalid phone channel ${channel}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+      );
       throw new Error(
-        `Invalid phone channel ${v}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+        `Invalid phone channel ${channel}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
       );
     }
 
