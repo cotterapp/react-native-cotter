@@ -42,7 +42,7 @@ class Register extends PureComponent {
       this.onSuccess,
       (getOAuthToken = true),
     );
-    await verify.openAuth('PHONE', ['SMS', 'WHATSAPP']);
+    await verify.openAuthWithInput('EMAIL', this.state.email);
     // this.onSuccess();
   };
 
