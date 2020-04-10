@@ -6,6 +6,12 @@ import {generateSecureRandom} from 'react-native-securerandom';
 import {Buffer} from 'buffer';
 import {hexToBytes} from './utils';
 
+const defaultPhoneChannels = ['SMS'];
+
+const smsChannel = 'SMS';
+const whatsappChannel = 'WHATSAPP';
+const validPhoneChannels = [smsChannel, whatsappChannel];
+
 class Verify {
   /**
    * This callback type is called `successCallback` and is displayed as a global symbol.
@@ -68,16 +74,20 @@ class Verify {
     return Math.random().toString(36).substring(2, 15);
   }
 
-  constructURLPath(identifierType) {
+  constructURLPath(identifierType, phoneChannels) {
     var url = `${this.jsBaseURL}?api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;
     url = url + `&code_challenge=${this.codeChallenge}`;
     url = url + `&state=${this.state}`;
+
+    if (phoneChannels && phoneChannels.length > 0) {
+      phoneChannels.forEach((c) => (url = url + `&phone_channels[]=${c}`));
+    }
     return url;
   }
 
-  constructURLPathWithInput(identifierType, identifier) {
+  constructURLPathWithInput(identifierType, identifier, channel) {
     var url = `${this.jsBaseURL}?direct_login=true`;
     url = url + `&api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
@@ -85,17 +95,41 @@ class Verify {
     url = url + `&code_challenge=${this.codeChallenge}`;
     url = url + `&state=${this.state}`;
     url = url + `&input=${encodeURIComponent(identifier)}`;
+
+    if (channel && channel.length > 0) {
+      url = url + `&use_channel=${channel}`;
+    }
     return url;
   }
 
   // Public Functions
   /**
    * @param {string} identifierType
+   * @param {Array} [phoneChannels=["SMS"]] - (For type PHONE) options for user: ["SMS"] or ["SMS", "WHATSAPP"] or ["WHATSAPP"]
    */
-  async openAuth(identifierType) {
+  async openAuth(identifierType, phoneChannels = defaultPhoneChannels) {
+    if (!Array.isArray(phoneChannels)) {
+      throw new Error(
+        'Phone channels have to be an array. Ex. ["SMS", "WHATSAPP"]',
+      );
+    }
+    phoneChannels.forEach((v) => {
+      if (!validPhoneChannels.includes(v)) {
+        this.onError(
+          `Invalid phone channel ${v}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+        );
+        throw new Error(
+          `Invalid phone channel ${v}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+        );
+      }
+    });
+
     await this.generateCodeVerifierAndChallenge();
     try {
-      const url = this.constructURLPath(identifierType);
+      const url = this.constructURLPath(
+        identifierType,
+        identifierType === 'PHONE' ? phoneChannels : null,
+      );
       this.authURL = url;
       console.log(url);
       VerifyManager.addRegistry(this, this.state);
@@ -121,11 +155,25 @@ class Verify {
   /**
    * @param {string} identifierType
    * @param {string} identifier
+   * @param {string} [channel='SMS'] - (For type PHONE) Channel to use to send code to user
    */
-  async openAuthWithInput(identifierType, identifier) {
+  async openAuthWithInput(identifierType, identifier, channel = smsChannel) {
+    if (!validPhoneChannels.includes(channel)) {
+      this.onError(
+        `Invalid phone channel ${channel}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+      );
+      throw new Error(
+        `Invalid phone channel ${channel}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+      );
+    }
+
     await this.generateCodeVerifierAndChallenge();
     try {
-      const url = this.constructURLPathWithInput(identifierType, identifier);
+      const url = this.constructURLPathWithInput(
+        identifierType,
+        identifier,
+        identifierType === 'PHONE' ? channel : null,
+      );
       this.authURL = url;
       console.log(url);
       VerifyManager.addRegistry(this, this.state);
