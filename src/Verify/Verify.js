@@ -52,7 +52,6 @@ class Verify {
     this.onError = onError;
     this.onSuccess = onSuccess;
     this.getOAuthToken = getOAuthToken;
-    this.phoneChannels = defaultPhoneChannels;
   }
 
   async generateCodeVerifierAndChallenge() {
