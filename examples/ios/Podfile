@@ -3,8 +3,6 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 target 'examples' do
   # Pods for examples
-  permissions_path = '../node_modules/react-native-permissions/ios'
-  pod 'Permission-Camera', :path => "#{permissions_path}/Camera.podspec"
   
   pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"

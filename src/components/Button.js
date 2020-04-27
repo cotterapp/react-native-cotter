@@ -8,11 +8,11 @@ import {
 } from 'react-native';
 import colors from '../assets/colors';
 
-export const ButtonContainer = props => (
+export const ButtonContainer = (props) => (
   <View style={[styles.container, props.style]}>{props.children}</View>
 );
 
-export const Button = props => (
+export const Button = (props) => (
   <TouchableOpacity
     style={[
       props.big ? styles.bigtouchable : styles.touchable,
@@ -33,7 +33,7 @@ export const Button = props => (
   </TouchableOpacity>
 );
 
-export const ButtonImage = props => (
+export const ButtonImage = (props) => (
   <TouchableOpacity
     style={[
       {
@@ -56,7 +56,7 @@ export const ButtonImage = props => (
 
 const styles = StyleSheet.create({
   text: {
-    fontSize: 20,
+    fontSize: 17,
     textAlign: 'center',
     fontWeight: '600',
     fontFamily: 'Akkurat-Bold',

@@ -1848,10 +1848,18 @@ buffer@^4.9.1:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-buffer@^5.4.3, buffer@^5.5.0:
+buffer@^5.4.3:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.5.0.tgz#9c3caa3d623c33dd1c7ef584b89b88bf9c9bc1ce"
   integrity sha512-9FTEDjLjwoAkEwyMGDjYJQN2gfRgOKBKRfiglhvibGbpeeU/pQn1bJxQqm32OD/AIeEuHxU9roxXxg34Byp/Ww==
+  dependencies:
+    base64-js "^1.0.2"
+    ieee754 "^1.1.4"
+
+buffer@^5.5.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.6.0.tgz#a31749dc7d81d84db08abf937b6b8c4033f62786"
+  integrity sha512-/gDYp/UtU0eA1ys8bOs9J6a+E/KWIY+DZ+Q2WESNUA0jFRsJOc0SNUO6xJ5SGA1xueg3NL65W6s+NY5l9cunuw==
   dependencies:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
@@ -5919,10 +5927,8 @@ react-native-camera@^3.19.1:
   dependencies:
     prop-types "^15.6.2"
 
-react-native-cotter@^0.1.12:
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/react-native-cotter/-/react-native-cotter-0.1.12.tgz#a3635a500725363821292174f5f342dd2d30523e"
-  integrity sha512-Cl9RMnUn3Ci6beyy5Ru9qlmDa2NeD3D5tMMR94gq3k3r/OaLPhBXi0f4eraBisKqVsfMw8+YqOixj6cSLZf0Ig==
+"react-native-cotter@file:.yalc/react-native-cotter":
+  version "0.1.12-a564bbf9"
   dependencies:
     axios "^0.19.2"
     buffer "^5.4.3"

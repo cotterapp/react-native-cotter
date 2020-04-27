@@ -7,22 +7,14 @@ import {
   Modal,
   TouchableOpacity,
   StyleSheet,
-  Platform,
-  Alert,
+  Linking,
 } from 'react-native';
 import colors from '../assets/colors';
 import {Title, Subtitle} from '../components/Text';
 import {ButtonContainer, ButtonImage, Button} from '../components/Button';
 import QRCode from 'react-native-qrcode-svg';
-
-import QRCodeScanner from 'react-native-qrcode-scanner';
-import {
-  PERMISSIONS,
-  RESULTS,
-  check,
-  request,
-  openSettings,
-} from 'react-native-permissions';
+import {RNCamera} from 'react-native-camera';
+import {FillToAspectRatio} from './utils';
 
 const winHeight = Dimensions.get('window').height;
 const winWidth = Dimensions.get('window').width;
@@ -72,8 +64,8 @@ const defaultScanQRText = {
   subtitle: 'Scan the QR Code from the new device',
   imageSuccess: checkImage,
   imageError: warningImage,
-  blocked:
-    'Camera is blocked. Please go to Settings and allow access to camera.',
+  blockedTitle: 'Camera Permission Denied',
+  blocked: 'Please go to Settings and allow access to camera.',
 };
 
 const connectCotterWrapper = function (WrappedComponent) {
@@ -107,6 +99,7 @@ const connectCotterWrapper = function (WrappedComponent) {
       cameraOk: false,
       scanQRSuccess: false,
       scanQRError: false,
+      scanned: false,
     };
 
     componentDidMount() {
@@ -324,77 +317,14 @@ const connectCotterWrapper = function (WrappedComponent) {
     hideQRScan = () => {
       this.setState({visibleScanQRCode: false});
     };
-    respondToPermission = (result) => {
-      console.log(result);
-      switch (result) {
-        case RESULTS.UNAVAILABLE:
-          alert('Camera is not available on this device.');
-          break;
-        case RESULTS.DENIED:
-          if (!this.state.cameraAsked) {
-            this.setState({cameraAsked: true});
-            request(
-              Platform.select({
-                android: PERMISSIONS.ANDROID.CAMERA,
-                ios: PERMISSIONS.IOS.CAMERA,
-              }),
-            )
-              .then(this.respondToPermission)
-              .catch((error) => this.requestCameraOpenSettings());
-          } else {
-            alert(this.state.defaultScanQRText.blocked);
-            this.setState({cameraAsked: false});
-          }
-          break;
-        case RESULTS.GRANTED:
-          this.setState({cameraOk: true});
-          break;
-        case RESULTS.BLOCKED:
-          this.requestCameraOpenSettings();
-          break;
-      }
-    };
-
-    requestCameraOpenSettings = () => {
-      Alert.alert(
-        'Unable to Open Camera',
-        this.state.defaultScanQRText.blocked,
-        [
-          {
-            text: 'Cancel',
-            onPress: this.hideQRScan,
-            style: 'cancel',
-          },
-          {
-            text: 'OK',
-            onPress: () =>
-              openSettings().catch(() => console.warn("Can't open settings")),
-          },
-        ],
-        {cancelable: false},
-      );
-    };
-
-    getPermission = () =>
-      check(
-        Platform.select({
-          android: PERMISSIONS.ANDROID.CAMERA,
-          ios: PERMISSIONS.IOS.CAMERA,
-        }),
-      )
-        .then(this.respondToPermission)
-        .catch((error) => {
-          console.log(error);
-          alert(this.state.defaultScanQRText.blocked);
-        });
 
     showQRScan = (scanQRText, trustDev) => {
       this.setState({
         visibleScanQRCode: true,
         scanQRText: scanQRText,
+        scanned: false,
       });
       this.trustDev = trustDev;
-      this.getPermission();
     };
 
     onErrorQRScanned = () => {
@@ -424,19 +354,23 @@ const connectCotterWrapper = function (WrappedComponent) {
     };
 
     submitScannedCode = async (e) => {
-      var scannedCode = e.data;
-      try {
-        var resp = await this.trustDev.enrollOtherDevice(scannedCode);
-        console.log(resp);
+      if (!this.state.scanned) {
+        var scannedCode = e.data;
+        console.log(e.data);
+        this.setState({scanned: true});
+        try {
+          var resp = await this.trustDev.enrollOtherDevice(scannedCode);
+          console.log(resp);
 
-        if (resp.approved === true) {
-          this.onSuccessQRScanned();
-        } else {
+          if (resp.approved === true) {
+            this.onSuccessQRScanned();
+          } else {
+            this.onErrorQRScanned();
+          }
+        } catch (e) {
           this.onErrorQRScanned();
+          console.log(e);
         }
-      } catch (e) {
-        this.onErrorQRScanned();
-        console.log(e);
       }
     };
     render() {
@@ -470,33 +404,51 @@ const connectCotterWrapper = function (WrappedComponent) {
           </Subtitle>
         </View>
       );
-      var scanQRComponent = this.state.cameraOk ? (
-        <QRCodeScanner
-          onRead={this.submitScannedCode}
-          topContent={scanQRtitle}
-          bottomViewStyle={{justifyContent: 'flex-start'}}
-          fadeIn={false}
-        />
-      ) : (
+      var scanQRNotAuthorized = (
         <View
-          style={[
-            styles.container,
-            {
-              height: '100%',
-              width: winWidth - 40,
-              justifyContent: 'space-between',
-            },
-          ]}>
-          {scanQRtitle}
-          <ButtonContainer>
+          style={{
+            width: '70%',
+            height: winHeight * 0.3,
+            alignSelf: 'center',
+          }}>
+          <Title style={[styles.blockedTitle, styles.textCenter]}>
+            {scanQRText.blockedTitle}
+          </Title>
+          <Subtitle style={[styles.blockedSubtitle, styles.textCenter]}>
+            {scanQRText.blocked}
+          </Subtitle>
+
+          <ButtonContainer style={{justifyContent: 'center'}}>
             <Button
-              onPress={this.getPermission}
+              onPress={() => {
+                Linking.openSettings();
+              }}
+              style={styles.blockedButton}
               backgroundColor={colors.green}
               color={colors.invertTextColor}>
-              Scan QR Code
+              Allow Camera
             </Button>
           </ButtonContainer>
         </View>
+      );
+      var scanQRComponent = (
+        <>
+          {scanQRtitle}
+          <View style={[styles.cameraContainer, {marginTop: 15}]}>
+            <FillToAspectRatio ratio="4:4">
+              <RNCamera
+                style={styles.cameraContainer}
+                ref={(ref) => {
+                  this.camera = ref;
+                }}
+                captureAudio={false}
+                barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+                onBarCodeRead={this.submitScannedCode}
+                notAuthorizedView={scanQRNotAuthorized}
+              />
+            </FillToAspectRatio>
+          </View>
+        </>
       );
       var scanQRSuccessError = (
         <View
@@ -707,11 +659,24 @@ const styles = StyleSheet.create({
     fontSize: 20,
     alignSelf: 'flex-start',
   },
+  blockedTitle: {
+    marginTop: 50,
+    fontSize: 15,
+    alignSelf: 'flex-start',
+    color: colors.darkGrey,
+  },
   subtitle: {
     marginTop: 10,
     fontSize: 15,
     alignSelf: 'flex-start',
     color: colors.darkGrey,
+  },
+  blockedSubtitle: {
+    marginTop: 10,
+    fontSize: 17,
+    alignSelf: 'flex-start',
+    color: colors.darkGrey,
+    lineHeight: 25,
   },
   textCenter: {
     alignSelf: 'center',
@@ -763,6 +728,21 @@ const styles = StyleSheet.create({
   },
   qrContainer: {
     padding: 20,
+  },
+  cameraContainer: {
+    alignItems: 'center',
+    width: winWidth,
+    height: winWidth,
+    maxWidth: winWidth,
+    maxHeight: winWidth,
+  },
+  blockedButton: {
+    flex: 0,
+    fontSize: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    marginTop: 20,
+    alignSelf: 'center',
   },
 });
 
