@@ -69,7 +69,6 @@ export default class LoadingPage extends Component {
     axios
       .post(verifyReq.backendBaseURL + path, data, config)
       .then((resp) => {
-        this.props.navigation.goBack();
         if (verifyReq.getOAuthToken) {
           const tokenHandler = new TokenHandler(
             Cotter.BaseURL,
@@ -77,12 +76,13 @@ export default class LoadingPage extends Component {
           );
           tokenHandler.storeTokens(resp.data.oauth_token);
         }
+        this.props.navigation.pop();
         verifyReq.onSuccess(resp.data);
       })
       .catch((e) => {
         console.log(e);
+        this.props.navigation.pop();
         verifyReq.onError('Something went wrong', e.response.data);
-        this.props.navigation.goBack();
       });
   }
 
