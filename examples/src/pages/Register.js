@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   Image,
+  Alert,
 } from 'react-native';
 import {Verify, Cotter} from 'react-native-cotter';
 import colors from '../assets/colors';
@@ -43,7 +44,6 @@ class Register extends PureComponent {
       (getOAuthToken = true),
     );
     await verify.openAuthWithInput('EMAIL', this.state.email);
-    // this.onSuccess();
   };
 
   onError = (errorMessage, error) => {
@@ -51,26 +51,38 @@ class Register extends PureComponent {
     console.log(error);
   };
 
-  onSuccess = response => {
+  onSuccess = async response => {
     console.log(response);
     this.setState({response});
-    // alert('Registering to backend');
-    var userID = this.registerUser(response);
-    this.setState({userID: userID});
-    // Initialize Cotter
-    var cotter = new Cotter(
-      COTTER_BASE_URL,
-      API_KEY_ID,
-      API_SECRET_KEY,
-      userID,
-    );
-    // Enroll device as Trusted Device
-    cotter.trustedDevice.enrollDevice(
-      this.onEnrollSuccess,
-      this.onEnrollError,
-      (getOAuthToken = true),
-    );
-    /* 1. Navigate to the callbackScreenName route with params */
+
+    // 1️⃣ Validating the response
+    if (Cotter.validateIdentityResponse(response.token)) {
+      // 2️⃣ (Optional) Register your user to your backend
+      try {
+        var userID = await this.registerUserToBackend(response);
+
+        this.setState({userID: userID});
+        console.log('User id', userID);
+
+        // 3️⃣ Initialize Cotter with your User ID and email/phone number (this is an array)
+        var cotter = new Cotter(
+          COTTER_BASE_URL,
+          API_KEY_ID,
+          API_SECRET_KEY,
+          userID, // user id can just be the user's email if you want => but your user can't update their email if you do this
+          [response.token.identifier],
+        );
+        // 4️⃣ Enroll device as Trusted Device
+        cotter.trustedDevice.enrollDevice(
+          this.onEnrollSuccess,
+          this.onEnrollError,
+          (getOAuthToken = true),
+        );
+      } catch (err) {
+        Alert.alert('Registering to backend error', err.msg);
+        console.log('Registering to backend error:', err.err);
+      }
+    }
   };
 
   onEnrollSuccess = resp => {
@@ -84,20 +96,38 @@ class Register extends PureComponent {
   onEnrollError = err => {
     alert(err);
     console.log(err);
-    // this.props.navigation.navigate('RegisterSuccess', {
-    //   trustedDeviceResp: err,
-    //   verifyResp: this.state.response,
-    //   userID: this.state.userID,
-    // });
   };
 
-  registerUser = response => {
-    // register in backend
-    // check cotter's token
-    // register user in Cotter with some user ID
-    // get back the user ID
-    var userID = USER_ID;
-    return userID;
+  // This is an example on how you can register your user to your backend server
+  registerUserToBackend = async payload => {
+    console.log('Registering to backend');
+    try {
+      const response = await fetch(
+        'https://0eexu.sse.codesandbox.io/users/register', // This is an example API endpoint. Use your server's endpoint instead
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const data = await response.json();
+      console.log(data);
+      if (!response.ok) {
+        throw data;
+      }
+
+      // Return back the User ID registered in your backend.
+      // RECOMMENDED: Use an unchanging user ID so users can
+      // update their email/phone number.
+      return data.id;
+    } catch (err) {
+      var errmsg = err.error ? err.error : null;
+      throw {msg: errmsg, err: err};
+    }
   };
   render() {
     return (

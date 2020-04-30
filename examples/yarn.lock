@@ -1824,7 +1824,7 @@ buffer@^5.4.3:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
 
-buffer@^5.5.0:
+buffer@^5.5.0, buffer@^5.6.0:
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.6.0.tgz#a31749dc7d81d84db08abf937b6b8c4033f62786"
   integrity sha512-/gDYp/UtU0eA1ys8bOs9J6a+E/KWIY+DZ+Q2WESNUA0jFRsJOc0SNUO6xJ5SGA1xueg3NL65W6s+NY5l9cunuw==
@@ -2198,6 +2198,16 @@ cotter-jwt-js@^0.1.0:
     axios "^0.19.2"
     buffer "^5.5.0"
     jwk-to-pem "^2.0.3"
+
+cotter-token-js@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/cotter-token-js/-/cotter-token-js-0.1.1.tgz#37fce68fb4724348244e0b9bee22e22a6c2ce32e"
+  integrity sha512-vJ85nDv02jh+spOlYXH7dWWhgBKptG4QT3ChQntP8WUP1+yvcoRYKY7d+UX6MJgQmtFF13x/eXP9oYnpSff82g==
+  dependencies:
+    axios "^0.19.2"
+    buffer "^5.6.0"
+    jwk-to-pem "^2.0.3"
+    tweetnacl "^1.0.3"
 
 create-react-class@^15.6.3:
   version "15.6.3"
@@ -5814,11 +5824,11 @@ react-native-camera@^3.19.1:
     prop-types "^15.6.2"
 
 "react-native-cotter@file:.yalc/react-native-cotter":
-  version "0.1.13-11dfb712"
+  version "0.1.14-d7cfc478"
   dependencies:
     axios "^0.19.2"
     buffer "^5.4.3"
-    cotter-jwt-js "^0.1.0"
+    cotter-token-js "^0.1.1"
     react-native-camera "^3.19.1"
     react-native-device-info "^5.5.3"
     react-native-inappbrowser-reborn "^3.3.4"

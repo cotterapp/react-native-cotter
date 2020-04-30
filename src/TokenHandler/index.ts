@@ -3,7 +3,7 @@ import {
   getItemSecure,
   removeItemSecure,
 } from '../services/deviceStorage';
-import {CotterAccessToken, CotterIDToken} from 'cotter-jwt-js';
+import {CotterAccessToken, CotterIDToken} from 'cotter-token-js';
 import Requests from '../Requests';
 
 const ACCESS_TOKEN_KEY = 'ACCESS_TOKEN';

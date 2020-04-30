@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   Image,
+  Alert,
 } from 'react-native';
 import {Cotter} from 'react-native-cotter';
 import colors from '../assets/colors';
@@ -29,21 +30,31 @@ class Login extends PureComponent {
 
   authenticate = async () => {
     console.log('Start', new Date().getTime());
-    const userID = await this.getUserID();
 
-    var cotter = new Cotter(
-      COTTER_BASE_URL,
-      API_KEY_ID,
-      API_SECRET_KEY,
-      userID,
-    );
-    cotter.trustedDevice.requestAuth(
-      'LOGIN',
-      this.onRequestSuccess,
-      this.onRequestError,
-      {},
-      (getOAuthToken = true),
-    );
+    // 1️⃣ (Optional) Get User ID from backend based on the email entered
+    try {
+      const userID = await this.getUserID(this.state.email);
+
+      this.setState({userID: userID});
+
+      // 2️⃣ Request trusted device authentication
+      var cotter = new Cotter(
+        COTTER_BASE_URL,
+        API_KEY_ID,
+        API_SECRET_KEY,
+        userID,
+      );
+      cotter.trustedDevice.requestAuth(
+        'LOGIN',
+        this.onRequestSuccess,
+        this.onRequestError,
+        {},
+        (getOAuthToken = true),
+      );
+    } catch (err) {
+      Alert.alert('Login to backend error', err.msg);
+      console.log('Login to backend error', err);
+    }
   };
 
   onRequestError = (errorMessage, error) => {
@@ -51,20 +62,50 @@ class Login extends PureComponent {
     console.log(error);
   };
 
-  onRequestSuccess = (response) => {
+  onRequestSuccess = response => {
     console.log(response);
 
-    console.log('Success', new Date().getTime());
-    this.props.navigation.navigate('Dashboard', {
-      userID: this.state.userID,
-    });
+    // 3️⃣ Validate the event response
+    if (Cotter.validateEventResponse(response)) {
+      console.log('Success', new Date().getTime());
+      this.props.navigation.navigate('Dashboard', {
+        userID: this.state.userID,
+      });
+    } else {
+      Alert.alert('Event response is invalid');
+    }
   };
-  getUserID = async (email) => {
-    // get user ID for the email
-    await new Promise((r) => setTimeout(r, 1000));
-    var userID = USER_ID;
-    this.setState({userID: userID});
-    return userID;
+
+  // This is an example on how you can register your user to your backend server
+  getUserID = async email => {
+    console.log('Getting ID from backend');
+    try {
+      const response = await fetch(
+        'https://0eexu.sse.codesandbox.io/users/login', // This is an example API endpoint. Use your server's endpoint instead
+        {
+          method: 'POST',
+          body: JSON.stringify({email: email}),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const data = await response.json();
+      console.log(data);
+      if (!response.ok) {
+        throw data;
+      }
+
+      // Return back the User ID registered in your backend.
+      // RECOMMENDED: Use an unchanging user ID so users can
+      // update their email/phone number.
+      return data.id;
+    } catch (err) {
+      var errmsg = err.error ? err.error : null;
+      throw {msg: errmsg, err: err};
+    }
   };
   render() {
     return (
@@ -81,7 +122,7 @@ class Login extends PureComponent {
                 placeholder={'e.g. +12345678910'}
                 style={{fontSize: 17}}
                 value={this.state.email}
-                onChangeText={(text) => this.setState({email: text})}
+                onChangeText={text => this.setState({email: text})}
                 autoCapitalize="none"
               />
             </InputContainer>

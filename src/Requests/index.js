@@ -444,6 +444,32 @@ class Requests {
     }
   }
 
+  /**
+   * Register user to the backend server
+   * @param {Array<string>} [identifiers=[]] - A list of email/phone numbers associated with this user
+   * @returns {Object} - The User Object created
+   * @throws {Object} - http error response
+   */
+  async registerUserToCotter(identifiers = []) {
+    try {
+      var config = {
+        headers: {
+          API_KEY_ID: this.apiKeyID,
+          'Content-type': 'application/json',
+        },
+      };
+      const path = '/user/create';
+      const req = {
+        client_user_id: this.userID,
+        identifiers: identifiers,
+      };
+      var resp = await axios.post(this.baseURL + path, req, config);
+      return resp.data;
+    } catch (err) {
+      throw err.response.data;
+    }
+  }
+
   async getDeviceType() {
     try {
       var resp = await DeviceInfo.getManufacturer();

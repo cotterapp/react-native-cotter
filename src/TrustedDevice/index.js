@@ -30,9 +30,10 @@ class TrustedDevice {
    * @param {string} apiKeyID
    * @param {string} apiSecretKey
    * @param {string} userID
+   * @param {Array<string>} [identifiers=[]] - A list of email/phone numbers associated with this user
    * @returns {TrustedDevice}
    */
-  constructor(baseURL, apiKeyID, apiSecretKey, userID) {
+  constructor(baseURL, apiKeyID, apiSecretKey, userID, identifiers = []) {
     this.method = trustedDeviceMethod;
     this.baseURL = baseURL;
     this.apiKeyID = apiKeyID;
@@ -40,6 +41,7 @@ class TrustedDevice {
     this.userID = userID;
     this.requests = new Requests(baseURL, apiKeyID, apiSecretKey, userID);
     this.algorithm = algorithm;
+    this.identifiers = identifiers;
     this.tokenHandler = new TokenHandler(
       baseURL,
       apiKeyID,
@@ -110,7 +112,9 @@ class TrustedDevice {
       if (err == 'NO_PUB_KEY' || err == 'NO_SEC_KEY') {
         getNewKeys = true;
       } else {
-        throw err;
+        var errMsg = 'Unable to get public and secret keys';
+        onError(errMsg, err);
+        return;
       }
     }
     const {RNRandomBytes} = NativeModules;
@@ -127,26 +131,40 @@ class TrustedDevice {
         saveItemSecure(this.getKeystoreAliasSecKey(), secKey);
       }
 
+      // Register user to Cotter
       this.requests
-        .updateMethod(
-          this.method,
-          pubKey,
-          true,
-          false,
-          null,
-          this.algorithm,
-          getOAuthToken,
-        )
+        .registerUserToCotter(this.identifiers)
         .then((resp) => {
-          if (getOAuthToken) {
-            this.tokenHandler.storeTokens(resp.oauth_token);
-          }
-          onSuccess(resp);
+          // Enroll device as trusted device
+          this.requests
+            .updateMethod(
+              this.method,
+              pubKey,
+              true,
+              false,
+              null,
+              this.algorithm,
+              getOAuthToken,
+            )
+            .then((resp) => {
+              if (getOAuthToken) {
+                this.tokenHandler.storeTokens(resp.oauth_token);
+              }
+              onSuccess(resp);
+              return;
+            })
+            .catch((err) => {
+              console.log(err);
+              var errMsg = err.msg ? err.msg : 'Something went wrong';
+              onError(errMsg, err);
+              return;
+            });
         })
-        .catch((err) => {
-          console.log(err);
-          var errMsg = err.msg ? err.msg : 'Something went wrong';
-          onError(errMsg, err);
+        .catch((error) => {
+          console.log(error);
+          var errMsg = error.msg ? error.msg : 'Something went wrong';
+          onError(errMsg, error);
+          return;
         });
     });
   }
