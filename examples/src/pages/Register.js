@@ -82,6 +82,9 @@ class Register extends PureComponent {
         Alert.alert('Registering to backend error', err.msg);
         console.log('Registering to backend error:', err.err);
       }
+    } else {
+      Alert.alert('Invalid Cotter Token');
+      console.log('Invalid Cotter Token:', response.token);
     }
   };
 
