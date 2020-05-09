@@ -38,12 +38,7 @@ class Login extends PureComponent {
       this.setState({userID: userID});
 
       // 2️⃣ Request trusted device authentication
-      var cotter = new Cotter(
-        COTTER_BASE_URL,
-        API_KEY_ID,
-        API_SECRET_KEY,
-        userID,
-      );
+      var cotter = new Cotter(API_KEY_ID, userID);
       cotter.trustedDevice.requestAuth(
         'LOGIN',
         this.onRequestSuccess,

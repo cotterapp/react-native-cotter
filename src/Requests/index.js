@@ -1,19 +1,16 @@
 import axios from 'axios';
 import {Buffer} from 'buffer';
 import DeviceInfo from 'react-native-device-info';
+import Cotter from '../Cotter';
 
 class Requests {
   /**
-   * @param {string} baseURL
    * @param {string} apiKeyID
-   * @param {string} apiSecretKey
    * @param {string} userID
    * @returns {Requests}
    */
-  constructor(baseURL, apiKeyID, apiSecretKey, userID) {
-    this.baseURL = baseURL;
+  constructor(apiKeyID, userID) {
     this.apiKeyID = apiKeyID;
-    this.apiSecretKey = apiSecretKey;
     this.userID = userID;
   }
 
@@ -54,11 +51,10 @@ class Requests {
       var config = {
         headers: {
           API_KEY_ID: this.apiKeyID,
-          API_SECRET_KEY: this.apiSecretKey,
           'Content-type': 'application/json',
         },
       };
-      var path = this.baseURL + '/user/' + this.userID;
+      var path = Cotter.BaseURL + '/user/' + this.userID;
       if (getOAuthToken) {
         path += '?oauth_token=true';
       }
@@ -102,7 +98,7 @@ class Requests {
    * @throws {Object} - http error response
    */
   async checkEnrolledMethod(method, pubKey) {
-    var path = this.baseURL + '/user/enrolled/' + this.userID + '/' + method;
+    var path = Cotter.BaseURL + '/user/enrolled/' + this.userID + '/' + method;
     if (pubKey != null) {
       var pubKeyEncoded = new Buffer(pubKey)
         .toString('base64')
@@ -114,7 +110,6 @@ class Requests {
       var config = {
         headers: {
           API_KEY_ID: this.apiKeyID,
-          API_SECRET_KEY: this.apiSecretKey,
           'Content-type': 'application/json',
         },
       };
@@ -305,11 +300,10 @@ class Requests {
       var config = {
         headers: {
           API_KEY_ID: this.apiKeyID,
-          API_SECRET_KEY: this.apiSecretKey,
           'Content-type': 'application/json',
         },
       };
-      var resp = await axios.post(this.baseURL + path, req, config);
+      var resp = await axios.post(Cotter.BaseURL + path, req, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -381,7 +375,6 @@ class Requests {
       var config = {
         headers: {
           API_KEY_ID: this.apiKeyID,
-          API_SECRET_KEY: this.apiSecretKey,
           'Content-type': 'application/json',
         },
       };
@@ -389,7 +382,7 @@ class Requests {
       if (getOAuthToken) {
         path += '?oauth_token=true';
       }
-      var resp = await axios.get(this.baseURL + path, config);
+      var resp = await axios.get(Cotter.BaseURL + path, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -406,12 +399,11 @@ class Requests {
       var config = {
         headers: {
           API_KEY_ID: this.apiKeyID,
-          API_SECRET_KEY: this.apiSecretKey,
           'Content-type': 'application/json',
         },
       };
       const path = '/event/new/' + this.userID;
-      var resp = await axios.get(this.baseURL + path, config);
+      var resp = await axios.get(Cotter.BaseURL + path, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -437,7 +429,7 @@ class Requests {
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
       };
-      var resp = await axios.post(this.baseURL + path, req, config);
+      var resp = await axios.post(Cotter.BaseURL + path, req, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -463,7 +455,7 @@ class Requests {
         client_user_id: this.userID,
         identifiers: identifiers,
       };
-      var resp = await axios.post(this.baseURL + path, req, config);
+      var resp = await axios.post(Cotter.BaseURL + path, req, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;

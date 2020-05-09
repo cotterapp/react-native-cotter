@@ -64,16 +64,13 @@ export default class LoadingPage extends Component {
     };
 
     console.log(config);
-    console.log(verifyReq.backendBaseURL + path);
+    console.log(Cotter.BaseURL + path);
 
     axios
-      .post(verifyReq.backendBaseURL + path, data, config)
+      .post(Cotter.BaseURL + path, data, config)
       .then((resp) => {
         if (verifyReq.getOAuthToken) {
-          const tokenHandler = new TokenHandler(
-            Cotter.BaseURL,
-            verifyReq.apiKeyID,
-          );
+          const tokenHandler = new TokenHandler(verifyReq.apiKeyID);
           tokenHandler.storeTokens(resp.data.oauth_token);
         }
         this.props.navigation.pop();

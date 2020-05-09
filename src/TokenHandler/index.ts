@@ -23,23 +23,14 @@ export default class TokenHandler {
   idToken: string;
   tokenType: string;
   refreshToken: string;
-  baseURL: string;
   apiKeyID: string;
-  apiSecretKey: string;
   userID: string;
   requests: Requests;
 
-  constructor(
-    baseURL: string,
-    apiKeyID: string,
-    apiSecretKey?: string,
-    userID?: string,
-  ) {
-    this.baseURL = baseURL;
+  constructor(apiKeyID: string, userID?: string) {
     this.apiKeyID = apiKeyID;
-    this.apiSecretKey = apiSecretKey;
     this.userID = userID;
-    this.requests = new Requests(baseURL, apiKeyID, apiSecretKey, userID);
+    this.requests = new Requests(apiKeyID, userID);
   }
 
   storeTokens(oauthTokens: OAuthToken) {

@@ -21,12 +21,7 @@ function Dashboard({route}) {
   );
 
   useEffect(() => {
-    var cotter = new Cotter(
-      COTTER_BASE_URL,
-      API_KEY_ID,
-      API_SECRET_KEY,
-      userID,
-    );
+    var cotter = new Cotter(API_KEY_ID, userID);
     setCotter(cotter);
   }, []);
 

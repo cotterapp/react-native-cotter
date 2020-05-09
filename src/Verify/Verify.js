@@ -5,6 +5,7 @@ import {sha256} from 'react-native-sha256';
 import {generateSecureRandom} from 'react-native-securerandom';
 import {Buffer} from 'buffer';
 import {hexToBytes} from './utils';
+import Cotter from '../Cotter';
 
 const defaultPhoneChannels = ['SMS'];
 
@@ -28,7 +29,6 @@ class Verify {
    */
 
   /**
-   * @param {string} jsBaseURL
    * @param {string} callbackURL
    * @param {string} apiKeyID
    * @param {errorCallback} onError
@@ -36,16 +36,12 @@ class Verify {
    * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
   constructor(
-    jsBaseURL,
-    backendBaseURL,
     callbackURL,
     apiKeyID,
     onError,
     onSuccess,
     getOAuthToken = false,
   ) {
-    this.jsBaseURL = jsBaseURL;
-    this.backendBaseURL = backendBaseURL;
     this.callbackURL = callbackURL;
     this.apiKeyID = apiKeyID;
     this.state = this.generateState();
@@ -75,7 +71,7 @@ class Verify {
   }
 
   constructURLPath(identifierType, phoneChannels) {
-    var url = `${this.jsBaseURL}?api_key=${this.apiKeyID}`;
+    var url = `${Cotter.JSBaseURL}?api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;
     url = url + `&code_challenge=${this.codeChallenge}`;
@@ -88,7 +84,7 @@ class Verify {
   }
 
   constructURLPathWithInput(identifierType, identifier, channel) {
-    var url = `${this.jsBaseURL}?direct_login=true`;
+    var url = `${Cotter.JSBaseURL}?direct_login=true`;
     url = url + `&api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;

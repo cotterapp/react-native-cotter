@@ -6,49 +6,26 @@ import CotterEvent, {
   CotterEventInterface,
 } from 'cotter-token-js/lib/CotterEvent';
 
-const DEV = true;
-const STAGING = false;
-
-const COTTER_BASE_URL: string = DEV
-  ? 'http://localhost:1234/api/v0'
-  : STAGING
-  ? 'https://s.www.cotter.app/api/v0'
-  : 'https://www.cotter.app/api/v0';
+const COTTER_BASE_URL: string = 'https://www.cotter.app/api/v0';
+const COTTER_JS_BASE_URL: string = 'https://js.cotter.app/app';
 
 class Cotter {
   static BaseURL: string = COTTER_BASE_URL;
-  baseURL: string;
+  static JSBaseURL: string = COTTER_JS_BASE_URL;
   apiKeyID: string;
-  apiSecretKey: string;
   userID: string;
   trustedDevice: TrustedDevice;
   tokenHandler: TokenHandler;
 
   constructor(
-    baseURL: string,
     apiKeyID: string,
-    apiSecretKey: string,
     userID: string,
     identifiers: Array<string> = [],
   ) {
-    this.baseURL = baseURL;
-    Cotter.BaseURL = baseURL;
     this.apiKeyID = apiKeyID;
-    this.apiSecretKey = apiSecretKey;
     this.userID = userID;
-    this.trustedDevice = new TrustedDevice(
-      baseURL,
-      apiKeyID,
-      apiSecretKey,
-      userID,
-      identifiers,
-    );
-    this.tokenHandler = new TokenHandler(
-      baseURL,
-      apiKeyID,
-      apiSecretKey,
-      userID,
-    );
+    this.trustedDevice = new TrustedDevice(apiKeyID, userID, identifiers);
+    this.tokenHandler = new TokenHandler(apiKeyID, userID);
   }
 
   static validateIdentityResponse(response: CotterIdentityInterface): boolean {
@@ -58,8 +35,17 @@ class Cotter {
   static validateEventResponse(response: CotterEventInterface): boolean {
     return new CotterEvent(response).validate();
   }
+
+  static setBaseURL(baseURL: string) {
+    Cotter.BaseURL = baseURL;
+  }
+
+  static setJSBaseURL(jsBaseURL: string) {
+    Cotter.JSBaseURL = jsBaseURL;
+  }
 }
 
 Cotter.BaseURL = COTTER_BASE_URL;
+Cotter.JSBaseURL = COTTER_JS_BASE_URL;
 
 export default Cotter;

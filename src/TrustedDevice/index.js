@@ -26,28 +26,19 @@ class TrustedDevice {
    */
 
   /**
-   * @param {string} baseURL
    * @param {string} apiKeyID
-   * @param {string} apiSecretKey
    * @param {string} userID
    * @param {Array<string>} [identifiers=[]] - A list of email/phone numbers associated with this user
    * @returns {TrustedDevice}
    */
-  constructor(baseURL, apiKeyID, apiSecretKey, userID, identifiers = []) {
+  constructor(apiKeyID, userID, identifiers = []) {
     this.method = trustedDeviceMethod;
-    this.baseURL = baseURL;
     this.apiKeyID = apiKeyID;
-    this.apiSecretKey = apiSecretKey;
     this.userID = userID;
-    this.requests = new Requests(baseURL, apiKeyID, apiSecretKey, userID);
+    this.requests = new Requests(apiKeyID, userID);
     this.algorithm = algorithm;
     this.identifiers = identifiers;
-    this.tokenHandler = new TokenHandler(
-      baseURL,
-      apiKeyID,
-      apiSecretKey,
-      userID,
-    );
+    this.tokenHandler = new TokenHandler(apiKeyID, userID);
   }
 
   getKeystoreAliasPubKey() {

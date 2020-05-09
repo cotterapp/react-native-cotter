@@ -35,8 +35,6 @@ class Register extends PureComponent {
   };
   continue = async () => {
     var verify = new Verify(
-      COTTER_JS_URL,
-      COTTER_BASE_URL,
       'myexample://auth_callback',
       API_KEY_ID,
       this.onError,
@@ -66,9 +64,7 @@ class Register extends PureComponent {
 
         // 3️⃣ Initialize Cotter with your User ID and email/phone number (this is an array)
         var cotter = new Cotter(
-          COTTER_BASE_URL,
           API_KEY_ID,
-          API_SECRET_KEY,
           userID, // user id can just be the user's email if you want => but your user can't update their email if you do this
           [response.token.identifier],
         );
@@ -126,7 +122,7 @@ class Register extends PureComponent {
       // Return back the User ID registered in your backend.
       // RECOMMENDED: Use an unchanging user ID so users can
       // update their email/phone number.
-      return data.id;
+      return data.user.id;
     } catch (err) {
       var errmsg = err.error ? err.error : null;
       throw {msg: errmsg, err: err};

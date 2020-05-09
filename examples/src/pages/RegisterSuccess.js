@@ -21,6 +21,10 @@ class RegisterSuccess extends PureComponent {
         this.props.route && this.props.route.params
           ? this.props.route.params.trustedDeviceResp
           : null,
+      userID:
+        this.props.route && this.props.route.params
+          ? this.props.route.params.userID
+          : null,
     };
   }
 
@@ -32,6 +36,7 @@ class RegisterSuccess extends PureComponent {
     this.props.navigation.navigate('Dashboard', {
       loginResp: this.state.loginResp,
       trustedDeviceResp: this.state.trustedDeviceResp,
+      userID: this.state.userID,
     });
   };
 
