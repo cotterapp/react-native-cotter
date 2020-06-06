@@ -118,7 +118,9 @@ class Register extends PureComponent {
       if (!response.ok) {
         throw data;
       }
-
+      if (!data.new_user) {
+        throw {msg: 'User already exist', err: null};
+      }
       // Return back the User ID registered in your backend.
       // RECOMMENDED: Use an unchanging user ID so users can
       // update their email/phone number.
