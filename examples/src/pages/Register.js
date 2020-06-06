@@ -75,7 +75,7 @@ class Register extends PureComponent {
           (getOAuthToken = true),
         );
       } catch (err) {
-        Alert.alert('Registering to backend error', err.msg);
+        Alert.alert('Registering to backend error', err.err.msg);
         console.log('Registering to backend error:', err.err);
       }
     } else {
