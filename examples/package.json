@@ -25,7 +25,7 @@
     "react-native-gesture-handler": "^1.6.0",
     "react-native-inappbrowser-reborn": "^3.3.4",
     "react-native-modal": "^11.5.4",
-    "react-native-qrcode-svg": "^6.0.3",
+    "react-native-qrcode-svg": "^6.0.6",
     "react-native-randombytes": "^3.5.3",
     "react-native-reanimated": "^1.7.0",
     "react-native-safe-area-context": "^0.7.3",
@@ -49,5 +49,9 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "resolutions": {
+    "**/**/minimist": "^1.2.5",
+    "**/**/mem": "^4.0.0"
   }
 }
