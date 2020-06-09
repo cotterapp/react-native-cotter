@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { TextInput } from 'react-native-gesture-handler';
+import React, {useState} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import {TextInput} from 'react-native-gesture-handler';
 import colors from '../assets/colors';
 
 export const InputContainer = props => (
@@ -32,7 +32,7 @@ export const InputText = props => {
       {...props}
       onFocus={() => setColor(colors.textColor)}
       onBlur={() => setColor(colors.textColorOpacity(0.2))}
-      style={[styles.input, props.style, { borderBottomColor: color }]}
+      style={[styles.input, props.style, {borderBottomColor: color}]}
       placeholderTextColor={colors.textColorOpacity(0.2)}
     />
   );
@@ -48,7 +48,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     marginTop: 20,
-    fontFamily: 'Akkurat',
   },
   input: {
     marginTop: 20,
@@ -57,6 +56,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     borderBottomWidth: 1,
-    fontFamily: 'Akkurat',
   },
 });

@@ -200,7 +200,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   text: {
-    fontFamily: 'Akkurat',
     fontSize: 22,
     paddingLeft: 10,
     alignSelf: 'center',
@@ -208,7 +207,6 @@ const styles = StyleSheet.create({
   },
   textSmall: {
     fontSize: 10,
-    fontFamily: 'Akkurat',
   },
   button: {
     marginTop: 20,

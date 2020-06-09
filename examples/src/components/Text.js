@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import {StyleSheet, Text} from 'react-native';
 import colors from '../assets/colors';
 
 export const Title = props => (
@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
     color: colors.textColor,
     fontSize: 20,
     fontWeight: '600',
-    fontFamily: 'Akkurat-Bold',
   },
   subtitle: {
     color: colors.textColor,

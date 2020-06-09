@@ -191,18 +191,15 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0,0,0,0)',
   },
   text: {
-    fontFamily: 'Akkurat',
     fontSize: 17,
     alignSelf: 'center',
     color: colors.purple,
   },
   title: {
-    fontFamily: 'Akkurat-Bold',
     fontSize: 25,
   },
   textSmall: {
     fontSize: 10,
-    fontFamily: 'Akkurat',
   },
   button: {
     marginTop: 20,

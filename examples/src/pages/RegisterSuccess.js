@@ -83,7 +83,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginTop: 10,
     fontSize: 25,
-    fontFamily: 'Akkurat-Bold',
   },
   midtitle: {
     alignSelf: 'center',
@@ -91,13 +90,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 10,
     fontSize: 17,
-    fontFamily: 'Akkurat',
   },
   subtitle: {
     alignSelf: 'center',
     textAlign: 'center',
     marginVertical: 20,
-    fontFamily: 'Akkurat',
   },
   image: {
     alignSelf: 'center',
