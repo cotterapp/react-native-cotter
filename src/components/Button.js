@@ -59,7 +59,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     textAlign: 'center',
     fontWeight: '600',
-    fontFamily: 'Akkurat-Bold',
   },
   bottom: {
     marginTop: 'auto',
