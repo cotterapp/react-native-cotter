@@ -4,7 +4,7 @@ import {Title, Subtitle} from '../components/Text';
 import colors from '../assets/colors';
 import {Button, ButtonContainer} from '../components/Button';
 import {Cotter} from 'react-native-cotter';
-import {API_KEY_ID, API_SECRET_KEY, USER_ID, COTTER_BASE_URL} from '../apiKeys';
+import {API_KEY_ID, COTTER_BASE_URL} from '../apiKeys';
 import {ScrollView} from 'react-native-gesture-handler';
 
 const dashboardImg = require('../assets/images/hello-app-dashboard.png');
@@ -12,40 +12,48 @@ const winWidth = Dimensions.get('window').width;
 const winHeight = Dimensions.get('window').height;
 
 function Dashboard({route}) {
+  Cotter.setBaseURL(COTTER_BASE_URL);
   const [cotter, setCotter] = useState(null);
   const [trustedDev, setTrustedDev] = useState(false);
-  const [userID, setUserID] = useState(
-    route && route.params && route.params.userID
-      ? route.params.userID
-      : USER_ID,
-  );
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    var cotter = new Cotter(API_KEY_ID, userID);
+    var cotter = new Cotter(API_KEY_ID);
     setCotter(cotter);
   }, []);
 
   useEffect(() => {
     if (cotter != null) {
-      checkThisDeviceTrusted();
+      getLoggedInUser();
     }
   }, [cotter]);
 
-  const checkThisDeviceTrusted = () => {
-    cotter.trustedDevice
-      .trustedDeviceEnrolled()
-      .then(trusted => {
-        setTrustedDev(trusted);
-      })
-      .catch(err => console.log(err));
+  const getLoggedInUser = async () => {
+    let user = await cotter.getLoggedInUser();
+    setUser(user);
+  };
+
+  useEffect(() => {
+    if (user != null) {
+      checkThisDeviceTrusted();
+    }
+  }, [user]);
+
+  const checkThisDeviceTrusted = async () => {
+    try {
+      var trusted = await user.isThisDeviceTrusted();
+      setTrustedDev(trusted);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const checkNewEvent = () => {
-    cotter.trustedDevice.getNewEvent();
+    user.checkNewSignInRequest();
   };
 
   const trustThisDevice = () => {
-    cotter.trustedDevice.trustThisDevice(onSuccessTrust, onErrorTrust);
+    user.trustThisDevice(onSuccessTrust, onErrorTrust);
   };
   const onSuccessTrust = () => {
     alert('Success');
@@ -54,11 +62,11 @@ function Dashboard({route}) {
     alert(errmsg);
   };
   const scanQRCode = () => {
-    cotter.trustedDevice.scanQRCode();
+    user.scanQRCode();
   };
   const removeDevice = async () => {
     try {
-      var resp = await cotter.trustedDevice.removeDevice();
+      var resp = await user.removeDevice();
       alert(resp);
       console.log(resp);
     } catch (err) {
@@ -84,8 +92,16 @@ function Dashboard({route}) {
     }
   };
 
+  const verifyEmail = () => {
+    user.verifyEmailWithLink(
+      'myexample://auth_callback',
+      payload => console.log(payload),
+      err => console.log(err),
+    );
+  };
+
   const logOut = () => {
-    cotter.tokenHandler.removeTokens();
+    cotter.logOut();
   };
 
   return (
@@ -157,6 +173,16 @@ function Dashboard({route}) {
           color={colors.invertTextColor}>
           <Title style={[styles.text, {textAlign: 'center'}]}>
             Read ID Token
+          </Title>
+        </Button>
+      </ButtonContainer>
+      <ButtonContainer style={{marginTop: 30}}>
+        <Button
+          onPress={verifyEmail}
+          backgroundColor={colors.lightPurple}
+          color={colors.invertTextColor}>
+          <Title style={[styles.text, {textAlign: 'center'}]}>
+            Verify Email of Logged-in User
           </Title>
         </Button>
       </ButtonContainer>

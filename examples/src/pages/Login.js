@@ -29,22 +29,16 @@ class Login extends PureComponent {
   };
 
   authenticate = async () => {
+    Cotter.setBaseURL(COTTER_BASE_URL);
     console.log('Start', new Date().getTime());
 
-    // 1️⃣ (Optional) Get User ID from backend based on the email entered
     try {
-      const userID = await this.getUserID(this.state.email);
-
-      this.setState({userID: userID});
-
-      // 2️⃣ Request trusted device authentication
-      var cotter = new Cotter(API_KEY_ID, userID);
-      cotter.trustedDevice.requestAuth(
-        'LOGIN',
+      // 1️⃣ Request trusted device authentication
+      var cotter = new Cotter(API_KEY_ID);
+      cotter.signInWithDevice(
+        this.state.email,
         this.onRequestSuccess,
         this.onRequestError,
-        {},
-        (getOAuthToken = true),
       );
     } catch (err) {
       Alert.alert('Login to backend error', err.msg);
@@ -101,6 +95,7 @@ class Login extends PureComponent {
       var errmsg = err.error ? err.error : null;
       throw {msg: errmsg, err: err};
     }
+    // return USER_ID;
   };
   render() {
     return (

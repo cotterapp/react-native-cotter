@@ -7,13 +7,15 @@ import {Buffer} from 'buffer';
 import {hexToBytes} from './utils';
 import Cotter from '../Cotter';
 
-const defaultPhoneChannels = ['SMS'];
-
-const smsChannel = 'SMS';
-const whatsappChannel = 'WHATSAPP';
-const validPhoneChannels = [smsChannel, whatsappChannel];
-
 class Verify {
+  static defaultPhoneChannels = ['SMS'];
+
+  static emailType = 'EMAIL';
+  static phoneType = 'PHONE';
+  static smsChannel = 'SMS';
+  static whatsappChannel = 'WHATSAPP';
+  static validPhoneChannels = ['SMS', 'WHATSAPP'];
+  static magicLinkMethod = 'MAGIC_LINK';
   /**
    * This callback type is called `successCallback` and is displayed as a global symbol.
    * It receives an object of the loginResponse
@@ -35,13 +37,7 @@ class Verify {
    * @param {successCallback} onSuccess
    * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    */
-  constructor(
-    callbackURL,
-    apiKeyID,
-    onError,
-    onSuccess,
-    getOAuthToken = false,
-  ) {
+  constructor(callbackURL, apiKeyID, onError, onSuccess, getOAuthToken = true) {
     this.callbackURL = callbackURL;
     this.apiKeyID = apiKeyID;
     this.state = this.generateState();
@@ -70,7 +66,12 @@ class Verify {
     return Math.random().toString(36).substring(2, 15);
   }
 
-  constructURLPath(identifierType, phoneChannels) {
+  constructURLPath(
+    identifierType,
+    phoneChannels,
+    cotterUserID = null,
+    authMethod = null,
+  ) {
     var url = `${Cotter.JSBaseURL}?api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;
@@ -80,10 +81,22 @@ class Verify {
     if (phoneChannels && phoneChannels.length > 0) {
       phoneChannels.forEach((c) => (url = url + `&phone_channels[]=${c}`));
     }
+    if (cotterUserID && cotterUserID.length > 0) {
+      url = url + `&cotter_user_id=${cotterUserID}`;
+    }
+    if (authMethod && authMethod.length > 0) {
+      url = url + `&auth_method=${authMethod}`;
+    }
     return url;
   }
 
-  constructURLPathWithInput(identifierType, identifier, channel) {
+  constructURLPathWithInput(
+    identifierType,
+    identifier,
+    channel,
+    cotterUserID = null,
+    authMethod = null,
+  ) {
     var url = `${Cotter.JSBaseURL}?direct_login=true`;
     url = url + `&api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
@@ -95,6 +108,12 @@ class Verify {
     if (channel && channel.length > 0) {
       url = url + `&use_channel=${channel}`;
     }
+    if (cotterUserID && cotterUserID.length > 0) {
+      url = url + `&cotter_user_id=${cotterUserID}`;
+    }
+    if (authMethod && authMethod.length > 0) {
+      url = url + `&auth_method=${authMethod}`;
+    }
     return url;
   }
 
@@ -102,20 +121,27 @@ class Verify {
   /**
    * @param {string} identifierType
    * @param {Array} [phoneChannels=["SMS"]] - (For type PHONE) options for user: ["SMS"] or ["SMS", "WHATSAPP"] or ["WHATSAPP"]
+   * @param {string} [cotterUserID = null] - Verifying the identifier of an existing user
+   * @param {string} [authMethod = null] - Magic Link or OTP
    */
-  async openAuth(identifierType, phoneChannels = defaultPhoneChannels) {
+  async openAuth(
+    identifierType,
+    phoneChannels = defaultPhoneChannels,
+    cotterUserID = null,
+    authMethod = null,
+  ) {
     if (!Array.isArray(phoneChannels)) {
       throw new Error(
         'Phone channels have to be an array. Ex. ["SMS", "WHATSAPP"]',
       );
     }
     phoneChannels.forEach((v) => {
-      if (!validPhoneChannels.includes(v)) {
+      if (!Verify.validPhoneChannels.includes(v)) {
         this.onError(
-          `Invalid phone channel ${v}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+          `Invalid phone channel ${v}. Allowed channels are ${Verify.smsChannel} and ${Verify.whatsappChannel}`,
         );
         throw new Error(
-          `Invalid phone channel ${v}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+          `Invalid phone channel ${v}. Allowed channels are ${Verify.smsChannel} and ${Verify.whatsappChannel}`,
         );
       }
     });
@@ -125,6 +151,8 @@ class Verify {
       const url = this.constructURLPath(
         identifierType,
         identifierType === 'PHONE' ? phoneChannels : null,
+        cotterUserID,
+        authMethod,
       );
       this.authURL = url;
       console.log(url);
@@ -152,26 +180,35 @@ class Verify {
    * @param {string} identifierType
    * @param {string} identifier
    * @param {string} [channel='SMS'] - (For type PHONE) Channel to use to send code to user
+   * @param {string} [cotterUserID = null] - Verifying the identifier of an existing user
+   * @param {string} [authMethod = null] - Magic Link or OTP
    */
-  async openAuthWithInput(identifierType, identifier, channel = smsChannel) {
-    if (!validPhoneChannels.includes(channel)) {
+  async openAuthWithInput(
+    identifierType,
+    identifier,
+    channel = Verify.smsChannel,
+    cotterUserID = null,
+    authMethod = null,
+  ) {
+    if (!Verify.validPhoneChannels.includes(channel)) {
       this.onError(
-        `Invalid phone channel ${channel}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+        `Invalid phone channel ${channel}. Allowed channels are ${Verify.smsChannel} and ${Verify.whatsappChannel}`,
       );
       throw new Error(
-        `Invalid phone channel ${channel}. Allowed channels are ${smsChannel} and ${whatsappChannel}`,
+        `Invalid phone channel ${channel}. Allowed channels are ${Verify.smsChannel} and ${Verify.whatsappChannel}`,
       );
     }
 
     await this.generateCodeVerifierAndChallenge();
     try {
-      const url = this.constructURLPathWithInput(
+      var url = this.constructURLPathWithInput(
         identifierType,
         identifier,
         identifierType === 'PHONE' ? channel : null,
+        cotterUserID,
+        authMethod,
       );
       this.authURL = url;
-      console.log(url);
       VerifyManager.addRegistry(this, this.state);
       if (await InAppBrowser.isAvailable()) {
         InAppBrowser.openAuth(url, this.callbackURL, {

@@ -9,7 +9,7 @@ class Requests {
    * @param {string} userID
    * @returns {Requests}
    */
-  constructor(apiKeyID, userID) {
+  constructor(apiKeyID, userID = null) {
     this.apiKeyID = apiKeyID;
     this.userID = userID;
   }
@@ -22,6 +22,7 @@ class Requests {
    * @param {string} currentCode
    * @param {string} algorithm
    * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
+   * @param {string} [cotterUserID=null]
    * @returns {Object} - User Object
    * @throws {Object} - http error response
    */
@@ -32,7 +33,8 @@ class Requests {
     changeCode,
     currentCode,
     algorithm,
-    getOAuthToken = false,
+    getOAuthToken = true,
+    cotterUserID = null,
   ) {
     var data = {
       method: method,
@@ -54,9 +56,13 @@ class Requests {
           'Content-type': 'application/json',
         },
       };
-      var path = Cotter.BaseURL + '/user/' + this.userID;
-      if (getOAuthToken) {
-        path += '?oauth_token=true';
+      var path = Cotter.BaseURL + '/user';
+      if (this.userID && this.userID.length > 0) {
+        path = `${path}/${this.userID}?oauth_token=true`;
+      } else if (cotterUserID && cotterUserID.length > 0) {
+        path = `${path}/methods?cotter_user_id=${cotterUserID}&oauth_token=true`;
+      } else {
+        throw 'User ID and Cotter User ID are both not specified';
       }
       var resp = await axios.put(path, data, config);
       return resp.data;
@@ -439,10 +445,11 @@ class Requests {
   /**
    * Register user to the backend server
    * @param {Array<string>} [identifiers=[]] - A list of email/phone numbers associated with this user
+   * @param {string} [identifier = null] - an email, phone, or username associated with this user
    * @returns {Object} - The User Object created
    * @throws {Object} - http error response
    */
-  async registerUserToCotter(identifiers = []) {
+  async registerUserToCotter(identifiers = [], identifier = null) {
     try {
       var config = {
         headers: {
@@ -451,11 +458,40 @@ class Requests {
         },
       };
       const path = '/user/create';
-      const req = {
-        client_user_id: this.userID,
-        identifiers: identifiers,
-      };
+      let req = {};
+      if (this.userID != null) {
+        req = {
+          client_user_id: this.userID,
+          identifiers: identifiers,
+        };
+      } else {
+        req = {
+          identifier: identifier,
+        };
+      }
       var resp = await axios.post(Cotter.BaseURL + path, req, config);
+      return resp.data;
+    } catch (err) {
+      throw err.response.data;
+    }
+  }
+
+  /**
+   * Get user from the backend server
+   * @param {string} identifier - an email, phone, or username associated with this user
+   * @returns {Object} - The User Object created
+   * @throws {Object} - http error response
+   */
+  async getUserByIdentifier(identifier) {
+    try {
+      var config = {
+        headers: {
+          API_KEY_ID: this.apiKeyID,
+          'Content-type': 'application/json',
+        },
+      };
+      const path = `/user?identifier=${identifier}`;
+      var resp = await axios.get(Cotter.BaseURL + path, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;

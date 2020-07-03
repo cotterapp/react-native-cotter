@@ -5,6 +5,10 @@ import {CotterIdentityInterface} from 'cotter-token-js/lib/CotterIdentity';
 import CotterEvent, {
   CotterEventInterface,
 } from 'cotter-token-js/lib/CotterEvent';
+import Verify from '../Verify/Verify';
+import {successCallback, errorCallback} from '../TrustedDevice/types';
+import Requests from '../Requests';
+import User from '../User';
 
 const COTTER_BASE_URL: string = 'https://www.cotter.app/api/v0';
 const COTTER_JS_BASE_URL: string = 'https://js.cotter.app/app';
@@ -13,13 +17,13 @@ class Cotter {
   static BaseURL: string = COTTER_BASE_URL;
   static JSBaseURL: string = COTTER_JS_BASE_URL;
   apiKeyID: string;
-  userID: string;
+  userID?: string;
   trustedDevice: TrustedDevice;
   tokenHandler: TokenHandler;
 
   constructor(
     apiKeyID: string,
-    userID: string,
+    userID: string = null,
     identifiers: Array<string> = [],
   ) {
     this.apiKeyID = apiKeyID;
@@ -42,6 +46,322 @@ class Cotter {
 
   static setJSBaseURL(jsBaseURL: string) {
     Cotter.JSBaseURL = jsBaseURL;
+  }
+
+  async logOut(): Promise<void> {
+    this.tokenHandler.removeTokens();
+  }
+
+  // ================================
+  //            User
+  // ================================
+  async getLoggedInUser(): Promise<User> {
+    return await User.getLoggedInUser(this);
+  }
+
+  // ================================
+  //          Verify Email
+  // ================================
+
+  async signInWithEmailOTP(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {email?: string},
+  ) {
+    return await this.signUpWithEmailOTP(
+      callbackURL,
+      onSuccess,
+      onError,
+      options,
+      false,
+    );
+  }
+  async signUpWithEmailOTP(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {email?: string},
+    signup: boolean = true,
+  ) {
+    const verify = new Verify(
+      callbackURL,
+      this.apiKeyID,
+      onError,
+      onSuccess,
+      true,
+    );
+    if (options && options.email && options.email.length > 0) {
+      if (signup) {
+        try {
+          let requests = new Requests(this.apiKeyID);
+          var resp = await requests.getUserByIdentifier(options.email);
+          if (
+            resp &&
+            resp.ID &&
+            resp.ID != '00000000-0000-0000-0000-000000000000'
+          ) {
+            onError('User already exists');
+            return;
+          }
+        } catch (err) {}
+      }
+      return await verify.openAuthWithInput(
+        Verify.emailType,
+        options.email,
+        Verify.smsChannel,
+        null,
+        null,
+      );
+    } else {
+      return await verify.openAuth(
+        Verify.emailType,
+        Verify.defaultPhoneChannels,
+        null,
+        null,
+      );
+    }
+  }
+
+  async signInWithEmailLink(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {email?: string},
+  ) {
+    return await this.signUpWithEmailLink(
+      callbackURL,
+      onSuccess,
+      onError,
+      options,
+      false,
+    );
+  }
+  async signUpWithEmailLink(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {email?: string},
+    signup: boolean = true,
+  ) {
+    const verify = new Verify(
+      callbackURL,
+      this.apiKeyID,
+      onError,
+      onSuccess,
+      true,
+    );
+    if (options && options.email && options.email.length > 0) {
+      if (signup) {
+        try {
+          let requests = new Requests(this.apiKeyID);
+          var resp = await requests.getUserByIdentifier(options.email);
+          if (
+            resp &&
+            resp.ID &&
+            resp.ID != '00000000-0000-0000-0000-000000000000'
+          ) {
+            onError('User already exists');
+            return;
+          }
+        } catch (err) {}
+      }
+      return await verify.openAuthWithInput(
+        Verify.emailType,
+        options.email,
+        Verify.smsChannel,
+        null,
+        Verify.magicLinkMethod,
+      );
+    } else {
+      return await verify.openAuth(
+        Verify.emailType,
+        Verify.defaultPhoneChannels,
+        null,
+        Verify.magicLinkMethod,
+      );
+    }
+  }
+
+  // ================================
+  //          Verify Phone
+  // ================================
+  async signInWithPhoneOTP(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {
+      phone?: string;
+      channel?: string;
+    },
+  ) {
+    return await this.signUpWithPhoneOTP(
+      callbackURL,
+      onSuccess,
+      onError,
+      options,
+      false,
+    );
+  }
+  async signUpWithPhoneOTP(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {
+      phone?: string;
+      channel?: string;
+    },
+    signup: boolean = true,
+  ) {
+    const verify = new Verify(
+      callbackURL,
+      this.apiKeyID,
+      onError,
+      onSuccess,
+      true,
+    );
+    if (options && options.phone && options.phone.length > 0) {
+      if (signup) {
+        try {
+          let requests = new Requests(this.apiKeyID);
+          var resp = await requests.getUserByIdentifier(options.phone);
+          if (
+            resp &&
+            resp.ID &&
+            resp.ID != '00000000-0000-0000-0000-000000000000'
+          ) {
+            onError('User already exists');
+            return;
+          }
+        } catch (err) {}
+      }
+      return await verify.openAuthWithInput(
+        Verify.phoneType,
+        options.phone,
+        options.channel,
+        null,
+        null,
+      );
+    } else {
+      return await verify.openAuth(
+        Verify.phoneType,
+        Verify.defaultPhoneChannels,
+        null,
+        null,
+      );
+    }
+  }
+
+  async signInWithPhoneLink(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {
+      phone?: string;
+      channel?: string;
+    },
+  ) {
+    return await this.signUpWithPhoneLink(
+      callbackURL,
+      onSuccess,
+      onError,
+      options,
+      false,
+    );
+  }
+  async signUpWithPhoneLink(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+    options?: {
+      phone?: string;
+      channel?: string;
+    },
+    signup: boolean = true,
+  ) {
+    const verify = new Verify(
+      callbackURL,
+      this.apiKeyID,
+      onError,
+      onSuccess,
+      true,
+    );
+    if (options && options.phone && options.phone.length > 0) {
+      if (signup) {
+        try {
+          let requests = new Requests(this.apiKeyID);
+          var resp = await requests.getUserByIdentifier(options.phone);
+          if (
+            resp &&
+            resp.ID &&
+            resp.ID != '00000000-0000-0000-0000-000000000000'
+          ) {
+            onError('User already exists');
+            return;
+          }
+        } catch (err) {}
+      }
+      return await verify.openAuthWithInput(
+        Verify.phoneType,
+        options.phone,
+        options.channel,
+        null,
+        Verify.magicLinkMethod,
+      );
+    } else {
+      return await verify.openAuth(
+        Verify.phoneType,
+        Verify.defaultPhoneChannels,
+        null,
+        Verify.magicLinkMethod,
+      );
+    }
+  }
+
+  // ================================
+  //        Device Based Auth
+  // ================================
+
+  async signUpWithDevice(
+    identifier: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+  ) {
+    const requests = new Requests(this.apiKeyID);
+    var resp = await requests.registerUserToCotter([], identifier);
+    var user = new User(resp);
+    const trustDev = new TrustedDevice(this.apiKeyID, null, [], user.ID);
+
+    this.userID = user.client_user_id;
+    this.trustedDevice = trustDev;
+    this.tokenHandler = new TokenHandler(this.apiKeyID, user.client_user_id);
+
+    await trustDev.enrollDeviceWithCotterUserID(
+      user.ID,
+      onSuccess,
+      onError,
+      true,
+    );
+  }
+
+  async signInWithDevice(
+    identifier: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+  ) {
+    const requests = new Requests(this.apiKeyID);
+    var resp = await requests.getUserByIdentifier(identifier);
+    var user = new User(resp);
+    const trustDev = new TrustedDevice(
+      this.apiKeyID,
+      user.client_user_id,
+      [],
+      user.ID,
+    );
+    this.userID = user.client_user_id;
+    this.trustedDevice = trustDev;
+    this.tokenHandler = new TokenHandler(this.apiKeyID, user.client_user_id);
+    await trustDev.requestAuth('LOGIN', onSuccess, onError, null, true);
   }
 }
 

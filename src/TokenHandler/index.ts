@@ -5,6 +5,7 @@ import {
 } from '../services/deviceStorage';
 import {CotterAccessToken, CotterIDToken} from 'cotter-token-js';
 import Requests from '../Requests';
+import User from '../User';
 
 const ACCESS_TOKEN_KEY = 'ACCESS_TOKEN';
 const REFRESH_TOKEN_KEY = 'REFRESH_TOKEN';
@@ -33,13 +34,13 @@ export default class TokenHandler {
     this.requests = new Requests(apiKeyID, userID);
   }
 
-  storeTokens(oauthTokens: OAuthToken) {
+  async storeTokens(oauthTokens: OAuthToken) {
     console.log('Storing Tokens');
     if (oauthTokens === null || oauthTokens === undefined) {
       throw new Error('oauthTokens are not specified (null or undefined)');
     }
     this.setAccessToken(oauthTokens.access_token);
-    this.setIDToken(oauthTokens.id_token);
+    await this.setIDToken(oauthTokens.id_token);
     this.setTokenType(oauthTokens.token_type);
     if (oauthTokens.refresh_token && oauthTokens.refresh_token.length > 0) {
       saveItemSecure(REFRESH_TOKEN_KEY, oauthTokens.refresh_token);
@@ -70,9 +71,20 @@ export default class TokenHandler {
     return new CotterAccessToken(accessToken);
   }
 
-  setIDToken(idToken: string) {
+  async setIDToken(idToken: string) {
     this.idToken = idToken;
     saveItemSecure(ID_TOKEN_KEY, idToken);
+
+    let idtok = new CotterIDToken(idToken);
+    var usrI = {
+      ID: idtok.payload.sub,
+      client_user_id: idtok.getClientUserID(),
+      issuer: this.apiKeyID,
+      identifier: idtok.payload.identifier,
+      enrolled: [],
+    };
+    let user = new User(usrI);
+    await user.store();
   }
 
   async getIDToken(): Promise<CotterIDToken> {

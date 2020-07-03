@@ -17,10 +17,8 @@
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* examplesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* examplesTests.m */; };
-		6C9080497A154D27B370D9A5 /* Akkurat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 52D4477809FB481E84522527 /* Akkurat-Bold.ttf */; };
 		7B09293FFAD9AADEF9535323 /* libPods-examples-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9538FC47C2B0449177498B5 /* libPods-examples-tvOS.a */; };
 		A6EA6D19D097FF0482322212 /* libPods-examplesTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 284B661A6B9AFB7C45178CF0 /* libPods-examplesTests.a */; };
-		E0C0BCD49E494D96947CF6FC /* Akkurat.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 81EB20FD01A8474F85C45DAB /* Akkurat.ttf */; };
 		F35CAEB9A776D54B1CB6C160 /* libPods-examples-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E224A55DDB0292FE70177B06 /* libPods-examples-tvOSTests.a */; };
 /* End PBXBuildFile section */
 
@@ -356,8 +354,6 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
-				6C9080497A154D27B370D9A5 /* Akkurat-Bold.ttf in Resources */,
-				E0C0BCD49E494D96947CF6FC /* Akkurat.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

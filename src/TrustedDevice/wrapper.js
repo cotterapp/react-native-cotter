@@ -115,7 +115,7 @@ const connectCotterWrapper = function (WrappedComponent) {
       trustDev,
       onSuccess,
       onError,
-      getOAuthToken = false,
+      getOAuthToken = true,
     ) => {
       this.setState({
         visibleAuthRequest: true,
@@ -171,7 +171,7 @@ const connectCotterWrapper = function (WrappedComponent) {
             clearInterval(this.timerAuthReq);
             this.hideAuthRequest();
 
-            if (this.state.authRequestGetOAuthToken === true) {
+            if (resp && resp.oauth_token) {
               this.trustDev.tokenHandler.storeTokens(resp.oauth_token);
             }
           }

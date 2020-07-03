@@ -13,13 +13,7 @@ import colors from '../assets/colors';
 import {Title} from '../components/Text';
 import {Button, ButtonImage, ButtonContainer} from '../components/Button';
 import {InputContainer, InputLabel, InputText} from '../components/Input';
-import {
-  API_KEY_ID,
-  API_SECRET_KEY,
-  USER_ID,
-  COTTER_JS_URL,
-  COTTER_BASE_URL,
-} from '../apiKeys';
+import {API_KEY_ID, COTTER_JS_URL, COTTER_BASE_URL} from '../apiKeys';
 
 const winHeight = Dimensions.get('window').height;
 const helloLogo = require('../assets/images/hello-logo.png');
@@ -32,16 +26,18 @@ class Register extends PureComponent {
     secKey: null,
     response: null,
     userID: null,
+    cotter: new Cotter(API_KEY_ID),
   };
   continue = async () => {
-    var verify = new Verify(
+    Cotter.setBaseURL(COTTER_BASE_URL);
+    Cotter.setJSBaseURL(COTTER_JS_URL);
+
+    await this.state.cotter.signUpWithEmailLink(
       'myexample://auth_callback',
-      API_KEY_ID,
-      this.onError,
       this.onSuccess,
-      (getOAuthToken = true),
+      this.onError,
+      {email: this.state.email},
     );
-    await verify.openAuthWithInput('EMAIL', this.state.email);
   };
 
   onError = (errorMessage, error) => {
@@ -53,34 +49,14 @@ class Register extends PureComponent {
     console.log(response);
     this.setState({response});
 
-    // 1️⃣ Validating the response
-    if (Cotter.validateIdentityResponse(response.token)) {
-      // 2️⃣ (Optional) Register your user to your backend
-      try {
-        var userID = await this.registerUserToBackend(response);
-
-        this.setState({userID: userID});
-        console.log('User id', userID);
-
-        // 3️⃣ Initialize Cotter with your User ID and email/phone number (this is an array)
-        var cotter = new Cotter(
-          API_KEY_ID,
-          userID, // user id can just be the user's email if you want => but your user can't update their email if you do this
-          [response.token.identifier],
-        );
-        // 4️⃣ Enroll device as Trusted Device
-        cotter.trustedDevice.enrollDevice(
-          this.onEnrollSuccess,
-          this.onEnrollError,
-          (getOAuthToken = true),
-        );
-      } catch (err) {
-        Alert.alert('Registering to backend error', err.err.msg);
-        console.log('Registering to backend error:', err.err);
-      }
-    } else {
-      Alert.alert('Invalid Cotter Token');
-      console.log('Invalid Cotter Token:', response.token);
+    try {
+      // 1️⃣ Get the logged-in user
+      var user = await this.state.cotter.getLoggedInUser();
+      console.log(user);
+      // 2️⃣ Enroll device as Trusted Device for this user
+      await user.registerDevice(this.onEnrollSuccess, this.onEnrollError);
+    } catch (err) {
+      console.log('getting logged-in user error:', err);
     }
   };
 
@@ -97,39 +73,6 @@ class Register extends PureComponent {
     console.log(err);
   };
 
-  // This is an example on how you can register your user to your backend server
-  registerUserToBackend = async payload => {
-    console.log('Registering to backend');
-    try {
-      const response = await fetch(
-        'https://0eexu.sse.codesandbox.io/users/register', // This is an example API endpoint. Use your server's endpoint instead
-        {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      const data = await response.json();
-      console.log(data);
-      if (!response.ok) {
-        throw data;
-      }
-      if (!data.new_user) {
-        throw {msg: 'User already exist', err: null};
-      }
-      // Return back the User ID registered in your backend.
-      // RECOMMENDED: Use an unchanging user ID so users can
-      // update their email/phone number.
-      return data.user.id;
-    } catch (err) {
-      var errmsg = err.error ? err.error : null;
-      throw {msg: errmsg, err: err};
-    }
-  };
   render() {
     return (
       <>

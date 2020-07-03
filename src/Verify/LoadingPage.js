@@ -5,6 +5,7 @@ import colors from '../assets/colors';
 import VerifyManager from './VerifyManager';
 import Cotter from '../Cotter';
 import TokenHandler from '../TokenHandler';
+import User from '../User';
 
 export default class LoadingPage extends Component {
   constructor(props) {
@@ -68,10 +69,14 @@ export default class LoadingPage extends Component {
 
     axios
       .post(Cotter.BaseURL + path, data, config)
-      .then((resp) => {
-        if (verifyReq.getOAuthToken) {
+      .then(async (resp) => {
+        if (resp.data && resp.data.oauth_token) {
           const tokenHandler = new TokenHandler(verifyReq.apiKeyID);
           tokenHandler.storeTokens(resp.data.oauth_token);
+        }
+        if (resp.data && resp.data.user) {
+          const user = new User(resp.data.user);
+          await user.store();
         }
         this.props.navigation.pop();
         verifyReq.onSuccess(resp.data);

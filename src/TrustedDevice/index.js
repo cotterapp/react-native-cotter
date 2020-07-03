@@ -5,6 +5,7 @@ import Requests from '../Requests';
 import {saveItemSecure, getItemSecure} from '../services/deviceStorage';
 import {CotterAuthModal} from './wrapper';
 import TokenHandler from '../TokenHandler';
+import User from '../User';
 
 const trustedDeviceMethod = 'TRUSTED_DEVICE';
 const keyStoreAlias = 'COTTER_TRUSTED_DEVICE_KEY';
@@ -29,12 +30,14 @@ class TrustedDevice {
    * @param {string} apiKeyID
    * @param {string} userID
    * @param {Array<string>} [identifiers=[]] - A list of email/phone numbers associated with this user
+   * @param {string} [cotterUserID=null] - Cotter User ID
    * @returns {TrustedDevice}
    */
-  constructor(apiKeyID, userID, identifiers = []) {
+  constructor(apiKeyID, userID, identifiers = [], cotterUserID = null) {
     this.method = trustedDeviceMethod;
     this.apiKeyID = apiKeyID;
     this.userID = userID;
+    this.cotterUserID = cotterUserID;
     this.requests = new Requests(apiKeyID, userID);
     this.algorithm = algorithm;
     this.identifiers = identifiers;
@@ -42,9 +45,15 @@ class TrustedDevice {
   }
 
   getKeystoreAliasPubKey() {
+    if (this.cotterUserID && this.cotterUserID.length > 0) {
+      return keyStoreAlias + this.apiKeyID + this.cotterUserID + 'PUB_KEY';
+    }
     return keyStoreAlias + this.apiKeyID + this.userID + 'PUB_KEY';
   }
   getKeystoreAliasSecKey() {
+    if (this.cotterUserID && this.cotterUserID.length > 0) {
+      return keyStoreAlias + this.apiKeyID + this.cotterUserID + 'SEC_KEY';
+    }
     return keyStoreAlias + this.apiKeyID + this.userID + 'SEC_KEY';
   }
 
@@ -125,7 +134,11 @@ class TrustedDevice {
       // Register user to Cotter
       this.requests
         .registerUserToCotter(this.identifiers)
-        .then((resp) => {
+        .then(async (resp) => {
+          if (resp) {
+            const user = new User(resp);
+            await user.store();
+          }
           // Enroll device as trusted device
           this.requests
             .updateMethod(
@@ -137,10 +150,14 @@ class TrustedDevice {
               this.algorithm,
               getOAuthToken,
             )
-            .then((resp) => {
+            .then(async (resp) => {
               if (getOAuthToken) {
                 this.tokenHandler.storeTokens(resp.oauth_token);
               }
+
+              const user = new User(resp);
+              await user.store();
+
               onSuccess(resp);
               return;
             })
@@ -161,18 +178,85 @@ class TrustedDevice {
   }
 
   /**
+   * @param {string} cotterUserID
+   * @param {successCallback} onSuccess
+   * @param {errorCallback} onError
+   * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
+   */
+  async enrollDeviceWithCotterUserID(
+    cotterUserID,
+    onSuccess,
+    onError,
+    getOAuthToken = true,
+  ) {
+    var getNewKeys = false;
+    try {
+      var pubKeyOrig = await this.getPublicKey();
+      var secKeyOrig = await this.getSecretKey();
+    } catch (err) {
+      if (err == 'NO_PUB_KEY' || err == 'NO_SEC_KEY') {
+        getNewKeys = true;
+      } else {
+        var errMsg = 'Unable to get public and secret keys';
+        onError(errMsg, err);
+        return;
+      }
+    }
+    const {RNRandomBytes} = NativeModules;
+    RNRandomBytes.randomBytes(32, (_, bytes) => {
+      var pubKey = pubKeyOrig;
+      var secKey = secKeyOrig;
+
+      if (getNewKeys) {
+        seed = Buffer.from(bytes, 'base64');
+        var keypair = sign.keyPair.fromSeed(seed);
+        secKey = new Buffer(keypair.secretKey).toString('base64');
+        pubKey = new Buffer(keypair.publicKey).toString('base64');
+        saveItemSecure(this.getKeystoreAliasPubKey(), pubKey);
+        saveItemSecure(this.getKeystoreAliasSecKey(), secKey);
+      }
+
+      // Enroll device as trusted device
+      this.requests
+        .updateMethod(
+          this.method,
+          pubKey,
+          true,
+          false,
+          null,
+          this.algorithm,
+          getOAuthToken,
+          cotterUserID,
+        )
+        .then(async (resp) => {
+          if (getOAuthToken) {
+            this.tokenHandler.storeTokens(resp.oauth_token);
+          }
+
+          const user = new User(resp);
+          await user.store();
+
+          onSuccess(resp);
+          return;
+        })
+        .catch((err) => {
+          console.log(err);
+          var errMsg = err.msg ? err.msg : 'Something went wrong';
+          onError(errMsg, err);
+          return;
+        });
+    });
+  }
+
+  /**
    * Check if THIS DEVICE is enrolled as a trusted device
-   * @returns {boolean}
+   * @returns {Promise<boolean>}
    * @throws {Object} - http error response
    */
   async trustedDeviceEnrolled() {
     try {
       // get Public Key from secure storage
-      try {
-        var pubKey = await this.getPublicKey();
-      } catch (e) {
-        return false;
-      }
+      var pubKey = await this.getPublicKey();
       if (!pubKey || (pubKey && pubKey.length < 5)) {
         return false;
       }
@@ -204,7 +288,7 @@ class TrustedDevice {
     onSuccess,
     onError,
     authRequestText = {},
-    getOAuthToken = false,
+    getOAuthToken = true,
   ) {
     var thisDeviceTrusted = await this.trustedDeviceEnrolled();
     if (thisDeviceTrusted) {
@@ -252,6 +336,7 @@ class TrustedDevice {
       if (getOAuthToken === true) {
         this.tokenHandler.storeTokens(resp.oauth_token);
       }
+
       onSuccess(resp);
     } catch (err) {
       console.log(err);
@@ -272,7 +357,7 @@ class TrustedDevice {
     onSuccess,
     onError,
     authRequestText = {},
-    getOAuthToken = false,
+    getOAuthToken = true,
   ) {
     var timestamp = Math.round(new Date().getTime() / 1000).toString();
     try {
@@ -357,6 +442,9 @@ class TrustedDevice {
   async trustThisDevice(onSuccess, onError, showQRText = {}) {
     var timeNow = Math.floor(new Date().getTime() / 1000);
     var qrTextNoKey = `:${this.algorithm}:${this.apiKeyID}:${this.userID}:${timeNow}`;
+    if (this.cotterUserID && this.cotterUserID.length > 0) {
+      qrTextNoKey = `:${this.algorithm}:${this.apiKeyID}:${this.cotterUserID}:${timeNow}`;
+    }
     try {
       var pubKey = await this.getPublicKey();
       if (pubKey && pubKey.length > 5) {
@@ -441,7 +529,7 @@ class TrustedDevice {
     }
 
     // check if user id == user id
-    if (newUserID != this.userID) {
+    if (newUserID != this.userID && newUserID != this.cotterUserID) {
       throw 'This QR Code belongs to another user, and cannot be registered for this user.';
     }
 
