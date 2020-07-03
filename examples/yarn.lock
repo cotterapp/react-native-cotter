@@ -5711,8 +5711,10 @@ react-native-camera@^3.19.1:
   dependencies:
     prop-types "^15.6.2"
 
-"react-native-cotter@file:.yalc/react-native-cotter":
-  version "0.2.3-ec8c8b08"
+react-native-cotter@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-cotter/-/react-native-cotter-0.3.0.tgz#cd7475cc69ec79421ce35316891e2ddab641c9a3"
+  integrity sha512-iap8ZKlVkLwb2LxNKlwGimG/tDZJ01ieNFcA7tsntzIdGOrq9U6Y0UcrBp8HMtugG53UMCgo9WEvYcB6ZDaL3g==
   dependencies:
     axios "^0.19.2"
     buffer "^5.4.3"
