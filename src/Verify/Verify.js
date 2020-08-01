@@ -14,7 +14,6 @@ class Verify {
   static phoneType = 'PHONE';
   static smsChannel = 'SMS';
   static whatsappChannel = 'WHATSAPP';
-  static emailChannel = 'EMAIL';
   static validPhoneChannels = ['SMS', 'WHATSAPP'];
   static magicLinkMethod = 'MAGIC_LINK';
   /**

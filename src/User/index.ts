@@ -113,7 +113,7 @@ class User {
     return await verify.openAuthWithInput(
       Verify.emailType,
       this.identifier,
-      Verify.emailChannel,
+      Verify.smsChannel,
       null,
       Verify.magicLinkMethod,
     );
@@ -134,7 +134,7 @@ class User {
     return await verify.openAuthWithInput(
       Verify.emailType,
       this.identifier,
-      Verify.emailChannel,
+      Verify.smsChannel,
       null,
       null,
     );
