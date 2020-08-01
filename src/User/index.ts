@@ -7,8 +7,7 @@ import Cotter from '../Cotter';
 import {successCallback, errorCallback} from '../TrustedDevice/types';
 import Verify from '../Verify/Verify';
 import TrustedDevice from '../TrustedDevice';
-
-const USER_STORAGE = 'COTTER_USER_STORAGE';
+import UserHandler, {CotterUserInterface} from './handler';
 
 class User {
   ID: string;
@@ -16,15 +15,8 @@ class User {
   client_user_id: string;
   enrolled: string[];
   identifier: string;
-  cotter: Cotter;
 
-  constructor(user: {
-    ID: string;
-    issuer: string;
-    client_user_id: string;
-    enrolled: string[];
-    identifier: string;
-  }) {
+  constructor(user: CotterUserInterface) {
     this.ID = user.ID;
     this.issuer = user.issuer;
     this.client_user_id = user.client_user_id;
@@ -32,27 +24,16 @@ class User {
     this.identifier = user.identifier;
   }
 
-  withCotter(cotter: Cotter): User {
-    this.cotter = cotter;
-    return this;
+  static async getLoggedInUser(): Promise<User> {
+    var usr = await UserHandler.getLoggedInUser();
+    return new User(usr);
   }
-
-  async store() {
-    console.log('saving user');
-    await saveItemSecure(USER_STORAGE, JSON.stringify(this));
-  }
-
-  static async getLoggedInUser(cotter: Cotter): Promise<User> {
-    var user = await getItemSecure(USER_STORAGE);
-    return new User(JSON.parse(user)).withCotter(cotter);
-  }
-
   // =============================
   //        Trusted Device
   // =============================
 
   async registerDevice(onSuccess: successCallback, onError: errorCallback) {
-    const trustDev = new TrustedDevice(this.cotter.apiKeyID, null, [], this.ID);
+    const trustDev = new TrustedDevice(this.issuer, null, [], this.ID);
     return await trustDev.enrollDeviceWithCotterUserID(
       this.ID,
       onSuccess,
@@ -63,7 +44,7 @@ class User {
 
   async isThisDeviceTrusted(): Promise<boolean> {
     const trustDev = new TrustedDevice(
-      this.cotter.apiKeyID,
+      this.issuer,
       this.client_user_id,
       [],
       this.ID,
@@ -76,7 +57,7 @@ class User {
     onError: errorCallback,
   ): Promise<void> {
     const trustDev = new TrustedDevice(
-      this.cotter.apiKeyID,
+      this.issuer,
       this.client_user_id,
       [],
       this.ID,
@@ -86,7 +67,7 @@ class User {
 
   async checkNewSignInRequest(): Promise<void> {
     const trustDev = new TrustedDevice(
-      this.cotter.apiKeyID,
+      this.issuer,
       this.client_user_id,
       [],
       this.ID,
@@ -96,7 +77,7 @@ class User {
 
   async scanQRCode(scanQRText: Object = {}) {
     const trustDev = new TrustedDevice(
-      this.cotter.apiKeyID,
+      this.issuer,
       this.client_user_id,
       [],
       this.ID,
@@ -107,7 +88,7 @@ class User {
 
   async removeDevice(): Promise<any> {
     const trustDev = new TrustedDevice(
-      this.cotter.apiKeyID,
+      this.issuer,
       this.client_user_id,
       [],
       this.ID,
@@ -115,18 +96,26 @@ class User {
     return await trustDev.removeDevice();
   }
   // =============================
-  //      Verify Email/Phone
+  //      Verify Email
   // =============================
   async verifyEmailWithLink(
     callbackURL: string,
     onSuccess: successCallback,
     onError: errorCallback,
   ) {
-    return await this.cotter.signInWithEmailLink(
+    const verify = new Verify(
       callbackURL,
-      onSuccess,
+      this.issuer,
       onError,
-      {email: this.identifier},
+      onSuccess,
+      true,
+    );
+    return await verify.openAuthWithInput(
+      Verify.emailType,
+      this.identifier,
+      Verify.emailChannel,
+      null,
+      Verify.magicLinkMethod,
     );
   }
 
@@ -135,11 +124,43 @@ class User {
     onSuccess: successCallback,
     onError: errorCallback,
   ) {
-    return await this.cotter.signInWithEmailOTP(
+    const verify = new Verify(
       callbackURL,
-      onSuccess,
+      this.issuer,
       onError,
-      {email: this.identifier},
+      onSuccess,
+      true,
+    );
+    return await verify.openAuthWithInput(
+      Verify.emailType,
+      this.identifier,
+      Verify.emailChannel,
+      null,
+      null,
+    );
+  }
+
+  // =============================
+  //      Verify SMS
+  // =============================
+  async verifyPhoneWithOTPViaSMS(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+  ) {
+    const verify = new Verify(
+      callbackURL,
+      this.issuer,
+      onError,
+      onSuccess,
+      true,
+    );
+    return await verify.openAuthWithInput(
+      Verify.phoneType,
+      this.identifier,
+      Verify.smsChannel,
+      null,
+      null,
     );
   }
 
@@ -148,11 +169,44 @@ class User {
     onSuccess: successCallback,
     onError: errorCallback,
   ) {
-    return await this.cotter.signInWithPhoneLink(
+    const verify = new Verify(
       callbackURL,
-      onSuccess,
+      this.issuer,
       onError,
-      {phone: this.identifier, channel: Verify.smsChannel},
+      onSuccess,
+      true,
+    );
+    return await verify.openAuthWithInput(
+      Verify.phoneType,
+      this.identifier,
+      Verify.smsChannel,
+      null,
+      Verify.magicLinkMethod,
+    );
+  }
+
+  // =============================
+  //      Verify WhatsApp
+  // =============================
+
+  async verifyPhoneWithOTPViaWhatsApp(
+    callbackURL: string,
+    onSuccess: successCallback,
+    onError: errorCallback,
+  ) {
+    const verify = new Verify(
+      callbackURL,
+      this.issuer,
+      onError,
+      onSuccess,
+      true,
+    );
+    return await verify.openAuthWithInput(
+      Verify.phoneType,
+      this.identifier,
+      Verify.whatsappChannel,
+      null,
+      null,
     );
   }
 
@@ -161,11 +215,19 @@ class User {
     onSuccess: successCallback,
     onError: errorCallback,
   ) {
-    return await this.cotter.signInWithPhoneLink(
+    const verify = new Verify(
       callbackURL,
-      onSuccess,
+      this.issuer,
       onError,
-      {phone: this.identifier, channel: Verify.whatsappChannel},
+      onSuccess,
+      true,
+    );
+    return await verify.openAuthWithInput(
+      Verify.phoneType,
+      this.identifier,
+      Verify.whatsappChannel,
+      null,
+      Verify.magicLinkMethod,
     );
   }
 }

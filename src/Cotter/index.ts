@@ -10,12 +10,7 @@ import {successCallback, errorCallback} from '../TrustedDevice/types';
 import Requests from '../Requests';
 import User from '../User';
 
-const COTTER_BASE_URL: string = 'https://www.cotter.app/api/v0';
-const COTTER_JS_BASE_URL: string = 'https://js.cotter.app/app';
-
 class Cotter {
-  static BaseURL: string = COTTER_BASE_URL;
-  static JSBaseURL: string = COTTER_JS_BASE_URL;
   apiKeyID: string;
   userID?: string;
   trustedDevice: TrustedDevice;
@@ -40,14 +35,6 @@ class Cotter {
     return new CotterEvent(response).validate();
   }
 
-  static setBaseURL(baseURL: string) {
-    Cotter.BaseURL = baseURL;
-  }
-
-  static setJSBaseURL(jsBaseURL: string) {
-    Cotter.JSBaseURL = jsBaseURL;
-  }
-
   async logOut(): Promise<void> {
     this.tokenHandler.removeTokens();
   }
@@ -56,7 +43,7 @@ class Cotter {
   //            User
   // ================================
   async getLoggedInUser(): Promise<User> {
-    return await User.getLoggedInUser(this);
+    return await User.getLoggedInUser();
   }
 
   // ================================
@@ -364,8 +351,5 @@ class Cotter {
     await trustDev.requestAuth('LOGIN', onSuccess, onError, null, true);
   }
 }
-
-Cotter.BaseURL = COTTER_BASE_URL;
-Cotter.JSBaseURL = COTTER_JS_BASE_URL;
 
 export default Cotter;

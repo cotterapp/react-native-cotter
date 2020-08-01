@@ -8,19 +8,19 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {Verify, Cotter} from 'react-native-cotter';
+import {Verify, Cotter, Constants} from 'react-native-cotter';
 import colors from '../assets/colors';
 import {Title} from '../components/Text';
 import {Button, ButtonImage, ButtonContainer} from '../components/Button';
 import {InputContainer, InputLabel, InputText} from '../components/Input';
-import {API_KEY_ID, COTTER_JS_URL, COTTER_BASE_URL} from '../apiKeys';
+import {API_KEY_ID, COTTER_JS_URL, COTTER_BASE_URL, USER_ID} from '../apiKeys';
 
 const winHeight = Dimensions.get('window').height;
 const helloLogo = require('../assets/images/hello-logo.png');
 
 class Register extends PureComponent {
   state = {
-    email: '',
+    phone: '',
     loading: false,
     ip: null,
     secKey: null,
@@ -29,14 +29,14 @@ class Register extends PureComponent {
     cotter: new Cotter(API_KEY_ID),
   };
   continue = async () => {
-    Cotter.setBaseURL(COTTER_BASE_URL);
-    Cotter.setJSBaseURL(COTTER_JS_URL);
-
-    await this.state.cotter.signUpWithEmailLink(
+    Constants.setBaseURL(COTTER_BASE_URL);
+    Constants.setJSBaseURL(COTTER_JS_URL);
+    // 1️⃣  Verify phone number with a magic link via WhatsApp
+    await this.state.cotter.signInWithEmailLink(
       'myexample://auth_callback',
       this.onSuccess,
       this.onError,
-      {email: this.state.email},
+      {email: this.state.phone},
     );
   };
 
@@ -50,13 +50,17 @@ class Register extends PureComponent {
     this.setState({response});
 
     try {
-      // 1️⃣ Get the logged-in user
+      // 2️⃣ Enroll device as Trusted Device for this user
+      // a) Get the logged-in user
       var user = await this.state.cotter.getLoggedInUser();
       console.log(user);
-      // 2️⃣ Enroll device as Trusted Device for this user
-      await user.registerDevice(this.onEnrollSuccess, this.onEnrollError);
+      // b) Register this device as trusted
+      await user.registerDevice(
+        resp => alert('Success'),
+        err => alert('Error'),
+      );
     } catch (err) {
-      console.log('getting logged-in user error:', err);
+      console.log('Error getting logged-in user:', err);
     }
   };
 
@@ -95,8 +99,8 @@ class Register extends PureComponent {
               <InputText
                 placeholder={'e.g. email@example.com'}
                 style={{fontSize: 17}}
-                value={this.state.email}
-                onChangeText={text => this.setState({email: text})}
+                value={this.state.phone}
+                onChangeText={text => this.setState({phone: text})}
                 autoCapitalize="none"
               />
             </InputContainer>

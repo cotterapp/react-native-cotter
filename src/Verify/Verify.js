@@ -5,7 +5,7 @@ import {sha256} from 'react-native-sha256';
 import {generateSecureRandom} from 'react-native-securerandom';
 import {Buffer} from 'buffer';
 import {hexToBytes} from './utils';
-import Cotter from '../Cotter';
+import Constants from '../Constants';
 
 class Verify {
   static defaultPhoneChannels = ['SMS'];
@@ -14,6 +14,7 @@ class Verify {
   static phoneType = 'PHONE';
   static smsChannel = 'SMS';
   static whatsappChannel = 'WHATSAPP';
+  static emailChannel = 'EMAIL';
   static validPhoneChannels = ['SMS', 'WHATSAPP'];
   static magicLinkMethod = 'MAGIC_LINK';
   /**
@@ -72,7 +73,7 @@ class Verify {
     cotterUserID = null,
     authMethod = null,
   ) {
-    var url = `${Cotter.JSBaseURL}?api_key=${this.apiKeyID}`;
+    var url = `${Constants.JSBaseURL}?api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;
     url = url + `&code_challenge=${this.codeChallenge}`;
@@ -97,7 +98,7 @@ class Verify {
     cotterUserID = null,
     authMethod = null,
   ) {
-    var url = `${Cotter.JSBaseURL}?direct_login=true`;
+    var url = `${Constants.JSBaseURL}?direct_login=true`;
     url = url + `&api_key=${this.apiKeyID}`;
     url = url + `&redirect_url=${this.callbackURL}`;
     url = url + `&type=${identifierType}`;
@@ -209,6 +210,7 @@ class Verify {
         authMethod,
       );
       this.authURL = url;
+      console.log(url);
       VerifyManager.addRegistry(this, this.state);
       if (await InAppBrowser.isAvailable()) {
         InAppBrowser.openAuth(url, this.callbackURL, {

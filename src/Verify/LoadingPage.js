@@ -3,9 +3,9 @@ import {View, ActivityIndicator} from 'react-native';
 import axios from 'axios';
 import colors from '../assets/colors';
 import VerifyManager from './VerifyManager';
-import Cotter from '../Cotter';
 import TokenHandler from '../TokenHandler';
-import User from '../User';
+import Constants from '../Constants';
+import UserHandler from '../User/handler';
 
 export default class LoadingPage extends Component {
   constructor(props) {
@@ -65,18 +65,17 @@ export default class LoadingPage extends Component {
     };
 
     console.log(config);
-    console.log(Cotter.BaseURL + path);
+    console.log(Constants.BaseURL + path);
 
     axios
-      .post(Cotter.BaseURL + path, data, config)
+      .post(Constants.BaseURL + path, data, config)
       .then(async (resp) => {
         if (resp.data && resp.data.oauth_token) {
           const tokenHandler = new TokenHandler(verifyReq.apiKeyID);
           tokenHandler.storeTokens(resp.data.oauth_token);
         }
         if (resp.data && resp.data.user) {
-          const user = new User(resp.data.user);
-          await user.store();
+          await UserHandler.store(resp.data.user);
         }
         this.props.navigation.pop();
         verifyReq.onSuccess(resp.data);

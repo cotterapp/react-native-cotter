@@ -6,6 +6,7 @@ import {
 import {CotterAccessToken, CotterIDToken} from 'cotter-token-js';
 import Requests from '../Requests';
 import User from '../User';
+import UserHandler from '../User/handler';
 
 const ACCESS_TOKEN_KEY = 'ACCESS_TOKEN';
 const REFRESH_TOKEN_KEY = 'REFRESH_TOKEN';
@@ -83,8 +84,7 @@ export default class TokenHandler {
       identifier: idtok.payload.identifier,
       enrolled: [],
     };
-    let user = new User(usrI);
-    await user.store();
+    await UserHandler.store(usrI);
   }
 
   async getIDToken(): Promise<CotterIDToken> {

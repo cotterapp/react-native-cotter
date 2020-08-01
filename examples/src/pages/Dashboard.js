@@ -3,7 +3,7 @@ import {View, Image, Dimensions, StyleSheet} from 'react-native';
 import {Title, Subtitle} from '../components/Text';
 import colors from '../assets/colors';
 import {Button, ButtonContainer} from '../components/Button';
-import {Cotter} from 'react-native-cotter';
+import {Cotter, Constants} from 'react-native-cotter';
 import {API_KEY_ID, COTTER_BASE_URL} from '../apiKeys';
 import {ScrollView} from 'react-native-gesture-handler';
 
@@ -12,7 +12,7 @@ const winWidth = Dimensions.get('window').width;
 const winHeight = Dimensions.get('window').height;
 
 function Dashboard({route}) {
-  Cotter.setBaseURL(COTTER_BASE_URL);
+  Constants.setBaseURL(COTTER_BASE_URL);
   const [cotter, setCotter] = useState(null);
   const [trustedDev, setTrustedDev] = useState(false);
   const [user, setUser] = useState(null);

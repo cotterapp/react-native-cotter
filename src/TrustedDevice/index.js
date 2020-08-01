@@ -5,7 +5,7 @@ import Requests from '../Requests';
 import {saveItemSecure, getItemSecure} from '../services/deviceStorage';
 import {CotterAuthModal} from './wrapper';
 import TokenHandler from '../TokenHandler';
-import User from '../User';
+import UserHandler from '../User/handler';
 
 const trustedDeviceMethod = 'TRUSTED_DEVICE';
 const keyStoreAlias = 'COTTER_TRUSTED_DEVICE_KEY';
@@ -136,8 +136,7 @@ class TrustedDevice {
         .registerUserToCotter(this.identifiers)
         .then(async (resp) => {
           if (resp) {
-            const user = new User(resp);
-            await user.store();
+            await UserHandler.store(resp);
           }
           // Enroll device as trusted device
           this.requests
@@ -155,8 +154,7 @@ class TrustedDevice {
                 this.tokenHandler.storeTokens(resp.oauth_token);
               }
 
-              const user = new User(resp);
-              await user.store();
+              await UserHandler.store(resp);
 
               onSuccess(resp);
               return;
@@ -233,8 +231,7 @@ class TrustedDevice {
             this.tokenHandler.storeTokens(resp.oauth_token);
           }
 
-          const user = new User(resp);
-          await user.store();
+          await UserHandler.store(resp);
 
           onSuccess(resp);
           return;

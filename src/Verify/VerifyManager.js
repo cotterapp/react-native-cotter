@@ -1,5 +1,3 @@
-import Verify from './Verify';
-
 class VerifyManager {
   static Registry = {};
   /**

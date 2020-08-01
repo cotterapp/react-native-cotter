@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import {LoadingPage} from 'react-native-cotter';
 import Login from './pages/Login';
 import Start from './pages/Start';
+import RegisterDevice from './pages/RegisterDevice';
 
 const MainStack = createStackNavigator();
 const RootStack = createStackNavigator();
@@ -22,6 +23,11 @@ function MainStackRouter() {
       <MainStack.Screen
         name="Register"
         component={Register}
+        options={{headerShown: false}}
+      />
+      <MainStack.Screen
+        name="RegisterDevice"
+        component={RegisterDevice}
         options={{headerShown: false}}
       />
       <MainStack.Screen

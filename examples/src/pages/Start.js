@@ -18,6 +18,9 @@ class Start extends PureComponent {
   goToSignup = () => {
     this.props.navigation.navigate('Register');
   };
+  goToSignupDevice = () => {
+    this.props.navigation.navigate('RegisterDevice');
+  };
   goToLogin = () => {
     this.props.navigation.navigate('Login');
   };
@@ -54,6 +57,16 @@ class Start extends PureComponent {
                   color={colors.invertTextColor}>
                   <Title style={[styles.text, {textAlign: 'center'}]}>
                     Sign Up
+                  </Title>
+                </ButtonImage>
+              </ButtonContainer>
+              <ButtonContainer>
+                <ButtonImage
+                  onPress={this.goToSignupDevice}
+                  backgroundColor={colors.purple}
+                  color={colors.invertTextColor}>
+                  <Title style={[styles.text, {textAlign: 'center'}]}>
+                    Sign Up With Device
                   </Title>
                 </ButtonImage>
               </ButtonContainer>

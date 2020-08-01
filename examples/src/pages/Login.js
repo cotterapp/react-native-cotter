@@ -8,7 +8,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {Cotter} from 'react-native-cotter';
+import {Cotter, Constants} from 'react-native-cotter';
 import colors from '../assets/colors';
 import {Title} from '../components/Text';
 import {Button, ButtonImage, ButtonContainer} from '../components/Button';
@@ -29,7 +29,7 @@ class Login extends PureComponent {
   };
 
   authenticate = async () => {
-    Cotter.setBaseURL(COTTER_BASE_URL);
+    Constants.setBaseURL(COTTER_BASE_URL);
     console.log('Start', new Date().getTime());
 
     try {

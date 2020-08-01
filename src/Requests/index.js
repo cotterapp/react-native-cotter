@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {Buffer} from 'buffer';
 import DeviceInfo from 'react-native-device-info';
-import Cotter from '../Cotter';
+import Constants from '../Constants';
 
 class Requests {
   /**
@@ -56,7 +56,7 @@ class Requests {
           'Content-type': 'application/json',
         },
       };
-      var path = Cotter.BaseURL + '/user';
+      var path = Constants.BaseURL + '/user';
       if (this.userID && this.userID.length > 0) {
         path = `${path}/${this.userID}?oauth_token=true`;
       } else if (cotterUserID && cotterUserID.length > 0) {
@@ -104,7 +104,8 @@ class Requests {
    * @throws {Object} - http error response
    */
   async checkEnrolledMethod(method, pubKey) {
-    var path = Cotter.BaseURL + '/user/enrolled/' + this.userID + '/' + method;
+    var path =
+      Constants.BaseURL + '/user/enrolled/' + this.userID + '/' + method;
     if (pubKey != null) {
       var pubKeyEncoded = new Buffer(pubKey)
         .toString('base64')
@@ -309,7 +310,7 @@ class Requests {
           'Content-type': 'application/json',
         },
       };
-      var resp = await axios.post(Cotter.BaseURL + path, req, config);
+      var resp = await axios.post(Constants.BaseURL + path, req, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -388,7 +389,7 @@ class Requests {
       if (getOAuthToken) {
         path += '?oauth_token=true';
       }
-      var resp = await axios.get(Cotter.BaseURL + path, config);
+      var resp = await axios.get(Constants.BaseURL + path, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -409,7 +410,7 @@ class Requests {
         },
       };
       const path = '/event/new/' + this.userID;
-      var resp = await axios.get(Cotter.BaseURL + path, config);
+      var resp = await axios.get(Constants.BaseURL + path, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -435,7 +436,7 @@ class Requests {
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
       };
-      var resp = await axios.post(Cotter.BaseURL + path, req, config);
+      var resp = await axios.post(Constants.BaseURL + path, req, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -469,7 +470,7 @@ class Requests {
           identifier: identifier,
         };
       }
-      var resp = await axios.post(Cotter.BaseURL + path, req, config);
+      var resp = await axios.post(Constants.BaseURL + path, req, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
@@ -491,7 +492,7 @@ class Requests {
         },
       };
       const path = `/user?identifier=${identifier}`;
-      var resp = await axios.get(Cotter.BaseURL + path, config);
+      var resp = await axios.get(Constants.BaseURL + path, config);
       return resp.data;
     } catch (err) {
       throw err.response.data;
