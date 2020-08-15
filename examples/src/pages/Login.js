@@ -32,18 +32,13 @@ class Login extends PureComponent {
     Constants.setBaseURL(COTTER_BASE_URL);
     console.log('Start', new Date().getTime());
 
-    try {
-      // 1️⃣ Request trusted device authentication
-      var cotter = new Cotter(API_KEY_ID);
-      cotter.signInWithDevice(
-        this.state.email,
-        this.onRequestSuccess,
-        this.onRequestError,
-      );
-    } catch (err) {
-      Alert.alert('Login to backend error', err.msg);
-      console.log('Login to backend error', err);
-    }
+    // 1️⃣ Request trusted device authentication
+    var cotter = new Cotter(API_KEY_ID);
+    cotter.signInWithDevice(
+      this.state.email,
+      this.onRequestSuccess,
+      this.onRequestError,
+    );
   };
 
   onRequestError = (errorMessage, error) => {
