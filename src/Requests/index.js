@@ -491,7 +491,7 @@ class Requests {
           'Content-type': 'application/json',
         },
       };
-      const path = `/user?identifier=${identifier}`;
+      const path = `/user?identifier=${encodeURIComponent(identifier)}`;
       var resp = await axios.get(Constants.BaseURL + path, config);
       return resp.data;
     } catch (err) {
