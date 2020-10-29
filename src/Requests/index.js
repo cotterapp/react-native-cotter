@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {Buffer} from 'buffer';
-import DeviceInfo from 'react-native-device-info';
 import Constants from '../Constants';
+import deviceInfo from '../services/deviceInfo';
 
 class Requests {
   /**
@@ -42,7 +42,7 @@ class Requests {
       code: code, // Code for PIN or Public Key
       algorithm: algorithm,
       device_name: this.getDeviceName(),
-      device_type: await this.getDeviceType(),
+      device_type: this.getDeviceType(),
     };
 
     if (changeCode) {
@@ -267,7 +267,7 @@ class Requests {
 
       register_new_device: true,
       new_device_public_key: newPublicKey,
-      device_type: await this.getDeviceType(),
+      device_type: this.getDeviceType(),
       device_name: this.getDeviceName(),
       new_device_algorithm: newAlgo,
     };
@@ -499,22 +499,12 @@ class Requests {
     }
   }
 
-  async getDeviceType() {
-    try {
-      var resp = await DeviceInfo.getManufacturer();
-      console.log(resp);
-      return resp;
-    } catch (err) {
-      console.log(err);
-      return 'unknown';
-    }
+  getDeviceType() {
+    return deviceInfo.getManufacturer();
   }
 
   getDeviceName() {
-    var deviceID = DeviceInfo.getDeviceId();
-    var readableVersion = DeviceInfo.getReadableVersion();
-    console.log(deviceID + ' ' + readableVersion);
-    return deviceID + ' ' + readableVersion;
+    return deviceInfo.getDeviceName();
   }
 
   async getIPAddress() {

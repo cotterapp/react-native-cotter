@@ -38,6 +38,7 @@
     "axios": "^0.19.2",
     "buffer": "^5.4.3",
     "cotter-token-js": "^0.1.4",
+    "expo-device": "^2.3.0",
     "react-native": "^0.62.2",
     "react-native-camera": "^3.19.1",
     "react-native-device-info": "^5.5.3",
