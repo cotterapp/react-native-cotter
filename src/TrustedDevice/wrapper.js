@@ -13,7 +13,7 @@ import colors from '../assets/colors';
 import {Title, Subtitle} from '../components/Text';
 import {ButtonContainer, ButtonImage, Button} from '../components/Button';
 import QRCode from 'react-native-qrcode-svg';
-import {RNCamera} from 'react-native-camera';
+import QRCodeCamera from '../services/QRCodeCamera';
 import {FillToAspectRatio} from './utils';
 
 const winHeight = Dimensions.get('window').height;
@@ -436,13 +436,11 @@ const connectCotterWrapper = function (WrappedComponent) {
           {scanQRtitle}
           <View style={[styles.cameraContainer, {marginTop: 15}]}>
             <FillToAspectRatio ratio="4:4">
-              <RNCamera
+              <QRCodeCamera
                 style={styles.cameraContainer}
                 ref={(ref) => {
                   this.camera = ref;
                 }}
-                captureAudio={false}
-                barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
                 onBarCodeRead={this.submitScannedCode}
                 notAuthorizedView={scanQRNotAuthorized}
               />

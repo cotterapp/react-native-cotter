@@ -8,3 +8,13 @@ export default {
     return `${Device.getSystemName()} ${Device.getDeviceId()} ${Device.getReadableVersion()}`
   }
 }
+
+
+// export default {
+//   getManufacturer: () => {
+//     return "hello"
+//   },
+//   getDeviceName: () => {
+//     return "world"
+//   }
+// }
