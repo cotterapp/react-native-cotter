@@ -1,14 +1,15 @@
 import TrustedDevice from '../TrustedDevice';
 import TokenHandler from '../TokenHandler';
-import {CotterIdentity} from 'cotter-token-js';
-import {CotterIdentityInterface} from 'cotter-token-js/lib/CotterIdentity';
+import { CotterIdentity } from 'cotter-token-js';
+import { CotterIdentityInterface } from 'cotter-token-js/lib/CotterIdentity';
 import CotterEvent, {
   CotterEventInterface,
 } from 'cotter-token-js/lib/CotterEvent';
 import Verify from '../Verify/Verify';
-import {successCallback, errorCallback} from '../TrustedDevice/types';
+import { successCallback, errorCallback } from '../TrustedDevice/types';
 import Requests from '../Requests';
 import User from '../User';
+import { errToString } from '../services/error';
 
 class Cotter {
   apiKeyID: string;
@@ -54,7 +55,7 @@ class Cotter {
     callbackURL: string,
     onSuccess: successCallback,
     onError: errorCallback,
-    options?: {email?: string},
+    options?: { email?: string },
   ) {
     return await this.signUpWithEmailOTP(
       callbackURL,
@@ -68,7 +69,7 @@ class Cotter {
     callbackURL: string,
     onSuccess: successCallback,
     onError: errorCallback,
-    options?: {email?: string},
+    options?: { email?: string },
     signup: boolean = true,
   ) {
     const verify = new Verify(
@@ -91,7 +92,10 @@ class Cotter {
             onError('User already exists');
             return;
           }
-        } catch (err) {}
+        } catch (err) {
+          onError(errToString(err))
+          return
+        }
       }
       return await verify.openAuthWithInput(
         Verify.emailType,
@@ -114,7 +118,7 @@ class Cotter {
     callbackURL: string,
     onSuccess: successCallback,
     onError: errorCallback,
-    options?: {email?: string},
+    options?: { email?: string },
   ) {
     return await this.signUpWithEmailLink(
       callbackURL,
@@ -128,7 +132,7 @@ class Cotter {
     callbackURL: string,
     onSuccess: successCallback,
     onError: errorCallback,
-    options?: {email?: string},
+    options?: { email?: string },
     signup: boolean = true,
   ) {
     const verify = new Verify(
@@ -151,7 +155,10 @@ class Cotter {
             onError('User already exists');
             return;
           }
-        } catch (err) {}
+        } catch (err) {
+          onError(errToString(err))
+          return
+        }
       }
       return await verify.openAuthWithInput(
         Verify.emailType,
@@ -220,7 +227,10 @@ class Cotter {
             onError('User already exists');
             return;
           }
-        } catch (err) {}
+        } catch (err) {
+          onError(errToString(err))
+          return
+        }
       }
       return await verify.openAuthWithInput(
         Verify.phoneType,
@@ -286,7 +296,10 @@ class Cotter {
             onError('User already exists');
             return;
           }
-        } catch (err) {}
+        } catch (err) {
+          onError(errToString(err))
+          return
+        }
       }
       return await verify.openAuthWithInput(
         Verify.phoneType,
@@ -315,7 +328,13 @@ class Cotter {
     onError: errorCallback,
   ) {
     const requests = new Requests(this.apiKeyID);
-    var resp = await requests.registerUserToCotter([], identifier);
+    var resp: any;
+    try {
+      resp = await requests.registerUserToCotter([], identifier);
+    } catch (e) {
+      onError(errToString(e))
+      return
+    }
     var user = new User(resp);
     const trustDev = new TrustedDevice(this.apiKeyID, null, [], user.ID);
 
@@ -337,7 +356,13 @@ class Cotter {
     onError: errorCallback,
   ) {
     const requests = new Requests(this.apiKeyID);
-    var resp = await requests.getUserByIdentifier(identifier);
+    var resp: any;
+    try {
+      resp = await requests.getUserByIdentifier(identifier);
+    } catch (e) {
+      onError(errToString(e))
+      return
+    }
     var user = new User(resp);
     const trustDev = new TrustedDevice(
       this.apiKeyID,
