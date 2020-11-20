@@ -36,8 +36,9 @@ class Cotter {
     return new CotterEvent(response).validate();
   }
 
-  async logOut(): Promise<void> {
+  logOut(): void {
     this.tokenHandler.removeTokens();
+    User.removeLoggedInUser();
   }
 
   // ================================
@@ -93,8 +94,8 @@ class Cotter {
             return;
           }
         } catch (err) {
-          onError(errToString(err))
-          return
+          onError(errToString(err));
+          return;
         }
       }
       return await verify.openAuthWithInput(
@@ -156,8 +157,8 @@ class Cotter {
             return;
           }
         } catch (err) {
-          onError(errToString(err))
-          return
+          onError(errToString(err));
+          return;
         }
       }
       return await verify.openAuthWithInput(
@@ -228,8 +229,8 @@ class Cotter {
             return;
           }
         } catch (err) {
-          onError(errToString(err))
-          return
+          onError(errToString(err));
+          return;
         }
       }
       return await verify.openAuthWithInput(
@@ -297,8 +298,8 @@ class Cotter {
             return;
           }
         } catch (err) {
-          onError(errToString(err))
-          return
+          onError(errToString(err));
+          return;
         }
       }
       return await verify.openAuthWithInput(
@@ -332,8 +333,8 @@ class Cotter {
     try {
       resp = await requests.registerUserToCotter([], identifier);
     } catch (e) {
-      onError(errToString(e))
-      return
+      onError(errToString(e));
+      return;
     }
     var user = new User(resp);
     const trustDev = new TrustedDevice(this.apiKeyID, null, [], user.ID);
@@ -360,8 +361,8 @@ class Cotter {
     try {
       resp = await requests.getUserByIdentifier(identifier);
     } catch (e) {
-      onError(errToString(e))
-      return
+      onError(errToString(e));
+      return;
     }
     var user = new User(resp);
     const trustDev = new TrustedDevice(

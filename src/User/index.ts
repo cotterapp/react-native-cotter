@@ -28,6 +28,10 @@ class User {
     var usr = await UserHandler.getLoggedInUser();
     return new User(usr);
   }
+
+  static removeLoggedInUser(): void {
+    UserHandler.removeLoggedInUser();
+  }
   // =============================
   //        Trusted Device
   // =============================

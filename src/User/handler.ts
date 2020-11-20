@@ -1,4 +1,8 @@
-import {saveItemSecure, getItemSecure} from '../services/deviceStorage';
+import {
+  saveItemSecure,
+  getItemSecure,
+  removeItemSecure,
+} from '../services/deviceStorage';
 
 const USER_STORAGE = 'COTTER_USER_STORAGE';
 
@@ -19,6 +23,9 @@ class UserHandler {
   static async getLoggedInUser(): Promise<CotterUserInterface> {
     var user = await getItemSecure(USER_STORAGE);
     return JSON.parse(user);
+  }
+  static removeLoggedInUser(): void {
+    removeItemSecure(USER_STORAGE);
   }
 }
 
