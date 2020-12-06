@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {Buffer} from 'buffer';
+import { Buffer } from 'buffer';
 import DeviceInfo from 'react-native-device-info';
 import Constants from '../Constants';
 
@@ -131,10 +131,21 @@ class Requests {
    * @param {string} event
    * @param {string} timestamp
    * @param {string} method
+   * @param {number} challengeID
+   * @param {string} challenge
    * @returns {string}
    */
-  constructApprovedEventMsg(event, timestamp, method) {
-    var list = [this.userID, this.apiKeyID, event, timestamp, method, 'true'];
+  constructApprovedEventMsg(event, timestamp, method, challengeID, challenge) {
+    var list = [
+      this.userID,
+      this.apiKeyID,
+      event,
+      timestamp,
+      method,
+      'true',
+      challengeID.toString(),
+      challenge,
+    ];
     return list.join('');
   }
 
@@ -145,7 +156,14 @@ class Requests {
    * @param {boolean} approved
    * @returns {string}
    */
-  constructRespondEventMsg(event, timestamp, method, approved) {
+  constructRespondEventMsg(
+    event,
+    timestamp,
+    method,
+    approved,
+    challengeID,
+    challenge,
+  ) {
     var list = [
       this.userID,
       this.apiKeyID,
@@ -153,6 +171,8 @@ class Requests {
       timestamp,
       method,
       approved + '',
+      challengeID.toString(),
+      challenge,
     ];
     return list.join('');
   }
@@ -165,6 +185,8 @@ class Requests {
    * @param {string} code - PIN or Signature
    * @param {string} publicKey - PublicKey for TrustedDevice or Biometric
    * @param {string} [algorithm=null] - Algorithm used for TrustedDevice keys
+   * @param {number} challengeID - One time Challenge ID for security
+   * @param {string} challenge - One time Challenge for security
    * @returns {Object} - The JSON data constructed
    */
   async constructApprovedEventJSON(
@@ -174,6 +196,8 @@ class Requests {
     code,
     publicKey,
     algorithm = null,
+    challengeID,
+    challenge,
   ) {
     var ipLoc = await this.getIPAddress();
     var data = {
@@ -187,6 +211,8 @@ class Requests {
       code: code,
       approved: true,
       public_key: publicKey,
+      challenge_id: challengeID,
+      challenge: challenge,
     };
     if (algorithm) {
       data['algorithm'] = algorithm;
@@ -202,6 +228,8 @@ class Requests {
    * @param {string} publicKey - PublicKey for TrustedDevice or Biometric
    * @param {string} algorithm - Algorithm used for TrustedDevice keys
    * @param {boolean} approved - PublicKey for TrustedDevice or Biometric
+   * @param {number} challengeID - One time Challenge ID for security
+   * @param {string} challenge - One time Challenge for security
    * @returns {Object} - The JSON data constructed
    */
   constructRespondEventJSON(
@@ -211,6 +239,8 @@ class Requests {
     publicKey,
     algorithm,
     approved,
+    challengeID,
+    challenge,
   ) {
     var data = {
       client_user_id: this.userID,
@@ -224,6 +254,8 @@ class Requests {
       approved: approved,
       public_key: publicKey,
       algorithm: algorithm,
+      challenge_id: challengeID,
+      challenge: challenge,
     };
     return data;
   }
@@ -239,6 +271,8 @@ class Requests {
    * @param {string} newPublicKey - New PublicKey to be enrolled
    * @param {string} newAlgo - New PublicKey Algorithm to be enrolled
    * @param {boolean} approved - PublicKey for TrustedDevice or Biometric
+   * @param {number} challengeID - One time Challenge ID for security
+   * @param {string} challenge - One time Challenge for security
    * @returns {Object} - The JSON data constructed
    */
   async constructRegisterNewDeviceJSON(
@@ -250,6 +284,8 @@ class Requests {
     algorithm,
     newPublicKey,
     newAlgo,
+    challengeID,
+    challenge,
   ) {
     var ipLoc = await this.getIPAddress();
     var data = {
@@ -270,6 +306,9 @@ class Requests {
       device_type: await this.getDeviceType(),
       device_name: this.getDeviceName(),
       new_device_algorithm: newAlgo,
+
+      challenge_id: challengeID,
+      challenge: challenge,
     };
     return data;
   }
@@ -318,6 +357,27 @@ class Requests {
   }
 
   /**
+   * Get a challenge to be signed for CreateApprovedEvent
+   * @returns {Object} - The Challenge created
+   * @throws {Object} - http error response
+   */
+  async requestEventChallenge() {
+    try {
+      var config = {
+        headers: {
+          API_KEY_ID: this.apiKeyID,
+          'Content-type': 'application/json',
+        },
+      };
+      var path = '/event/challenge';
+      var resp = await axios.get(Constants.BaseURL + path, config);
+      return resp.data;
+    } catch (err) {
+      throw err.response.data;
+    }
+  }
+
+  /**
    * Create event that is automatically approved
    * @param {Object} req
    * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
@@ -340,11 +400,12 @@ class Requests {
   /**
    * Create event that need approval from a TrustedDevice
    * @param {Object} req
+   * @param {string} code_challenge - code challenge for PKCE
    * @returns {Object} - The Event Object created
    * @throws {Object} - http error response
    */
-  async createPendingEventRequest(req) {
-    const path = '/event/create_pending';
+  async createPendingEventRequest(req, code_challenge) {
+    const path = `/event/create_pending?code_challenge=${code_challenge}`;
     try {
       var resp = await this.createEventRequest(req, path);
       return resp;
@@ -373,11 +434,12 @@ class Requests {
   /**
    * Get an event based on the ID
    * @param {number} eventID
+   * @param {string} codeVerifier - code verifier for PKCE
    * @param {boolean} [getOAuthToken=false] - Whether or not to return oauth tokens
    * @returns {Object} - The Event Object created
    * @throws {Object} - http error response
    */
-  async getEvent(eventID, getOAuthToken = false) {
+  async getEvent(eventID, codeVerifier, getOAuthToken = false) {
     try {
       var config = {
         headers: {
@@ -385,11 +447,13 @@ class Requests {
           'Content-type': 'application/json',
         },
       };
-      var path = '/event/get/' + eventID;
+      var path = `/event/get/${eventID}?code_verifier=${codeVerifier}`;
+
       if (getOAuthToken) {
-        path += '?oauth_token=true';
+        path += '&oauth_token=true';
       }
       var resp = await axios.get(Constants.BaseURL + path, config);
+
       return resp.data;
     } catch (err) {
       throw err.response.data;

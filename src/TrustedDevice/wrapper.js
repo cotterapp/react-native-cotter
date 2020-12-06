@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import BottomModal from 'react-native-modal';
 import {
   View,
@@ -10,11 +10,11 @@ import {
   Linking,
 } from 'react-native';
 import colors from '../assets/colors';
-import {Title, Subtitle} from '../components/Text';
-import {ButtonContainer, ButtonImage, Button} from '../components/Button';
+import { Title, Subtitle } from '../components/Text';
+import { ButtonContainer, ButtonImage, Button } from '../components/Button';
 import QRCode from 'react-native-qrcode-svg';
-import {RNCamera} from 'react-native-camera';
-import {FillToAspectRatio} from './utils';
+import { RNCamera } from 'react-native-camera';
+import { FillToAspectRatio } from './utils';
 
 const winHeight = Dimensions.get('window').height;
 const winWidth = Dimensions.get('window').width;
@@ -77,6 +77,7 @@ const connectCotterWrapper = function (WrappedComponent) {
       eventID: null,
       seconds: AUTH_REQUEST_DEADLINE,
       authRequestGetOAuthToken: false,
+      authRequestCodeVerifier: null,
 
       // Auth Approve Modal
       visibleAuthApprove: false,
@@ -115,6 +116,7 @@ const connectCotterWrapper = function (WrappedComponent) {
       trustDev,
       onSuccess,
       onError,
+      codeVerifier,
       getOAuthToken = true,
     ) => {
       this.setState({
@@ -125,6 +127,7 @@ const connectCotterWrapper = function (WrappedComponent) {
         error: false,
         seconds: AUTH_REQUEST_DEADLINE,
         authRequestGetOAuthToken: getOAuthToken,
+        authRequestCodeVerifier: codeVerifier,
       });
       this.trustDev = trustDev;
       this.onAuthReqSuccess = onSuccess;
@@ -133,7 +136,7 @@ const connectCotterWrapper = function (WrappedComponent) {
     };
 
     hideAuthRequest = () => {
-      this.setState({visibleAuthRequest: false});
+      this.setState({ visibleAuthRequest: false });
     };
 
     startTimerAuthRequest = () => {
@@ -143,11 +146,11 @@ const connectCotterWrapper = function (WrappedComponent) {
         var now = new Date().getTime();
         var t = deadline - now;
         var seconds = Math.floor((t % (1000 * 60)) / 1000);
-        self.setState({seconds: seconds});
+        self.setState({ seconds: seconds });
         self.getEvent();
         if (t < 0) {
           clearInterval(x);
-          self.setState({error: true});
+          self.setState({ error: true });
           setTimeout(
             () => self.errorAndCloseAuthReq('Request Timeout', null),
             AUTH_REQUEST_ERROR_DURATION * 1000,
@@ -163,7 +166,11 @@ const connectCotterWrapper = function (WrappedComponent) {
 
     getEvent = () => {
       this.trustDev.requests
-        .getEvent(this.state.eventID, this.state.authRequestGetOAuthToken)
+        .getEvent(
+          this.state.eventID,
+          this.state.authRequestCodeVerifier,
+          this.state.authRequestGetOAuthToken,
+        )
         .then((resp) => {
           console.log('poll', resp);
           if (resp.approved) {
@@ -201,7 +208,7 @@ const connectCotterWrapper = function (WrappedComponent) {
     };
 
     hideAuthApprove = () => {
-      this.setState({visibleAuthApprove: false});
+      this.setState({ visibleAuthApprove: false });
     };
 
     closeAndRejectAuthApprove = () => {
@@ -216,10 +223,10 @@ const connectCotterWrapper = function (WrappedComponent) {
         if (resp.approved == true) {
           this.hideAuthApprove();
         } else {
-          this.setState({error: true});
+          this.setState({ error: true });
         }
       } catch (err) {
-        this.setState({error: true});
+        this.setState({ error: true });
       }
     };
 
@@ -230,10 +237,10 @@ const connectCotterWrapper = function (WrappedComponent) {
         if (resp.approved == false) {
           this.hideAuthApprove();
         } else {
-          this.setState({error: true});
+          this.setState({ error: true });
         }
       } catch (err) {
-        this.setState({error: true});
+        this.setState({ error: true });
       }
     };
 
@@ -277,11 +284,11 @@ const connectCotterWrapper = function (WrappedComponent) {
         var now = new Date().getTime();
         var t = deadline - now;
         var seconds = Math.floor((t % (1000 * 60)) / 1000);
-        self.setState({seconds: seconds});
+        self.setState({ seconds: seconds });
         self.trustedDeviceEnrolled();
         if (t < 0) {
           clearInterval(x);
-          self.setState({error: true});
+          self.setState({ error: true });
           setTimeout(
             () => self.errorAndCloseQRShow('Request Timeout', null),
             QR_SHOW_RESULT_DURATION * 1000,
@@ -296,7 +303,7 @@ const connectCotterWrapper = function (WrappedComponent) {
     };
 
     errorAndCloseQRShow = (errMsg, err) => {
-      this.setState({qrShowSuccess: false, qrShowError: true});
+      this.setState({ qrShowSuccess: false, qrShowError: true });
       var self = this;
       setTimeout(() => {
         self.hideQRCode();
@@ -306,7 +313,7 @@ const connectCotterWrapper = function (WrappedComponent) {
 
     onEnrollNewDeviceSuccess = () => {
       clearInterval(this.timerQRShow);
-      this.setState({qrShowSuccess: true, qrShowError: false});
+      this.setState({ qrShowSuccess: true, qrShowError: false });
       var self = this;
       setTimeout(() => {
         self.hideQRCode();
@@ -315,7 +322,7 @@ const connectCotterWrapper = function (WrappedComponent) {
     };
     // Scan QR Code
     hideQRScan = () => {
-      this.setState({visibleScanQRCode: false});
+      this.setState({ visibleScanQRCode: false });
     };
 
     showQRScan = (scanQRText, trustDev) => {
@@ -329,7 +336,7 @@ const connectCotterWrapper = function (WrappedComponent) {
 
     onErrorQRScanned = () => {
       var self = this;
-      this.setState({scanQRSuccess: false, scanQRError: true});
+      this.setState({ scanQRSuccess: false, scanQRError: true });
       setTimeout(() => {
         self.hideQRScan();
         this.setState({
@@ -342,7 +349,7 @@ const connectCotterWrapper = function (WrappedComponent) {
 
     onSuccessQRScanned = () => {
       var self = this;
-      this.setState({scanQRSuccess: true, scanQRError: false});
+      this.setState({ scanQRSuccess: true, scanQRError: false });
       setTimeout(() => {
         self.hideQRScan();
         this.setState({
@@ -357,7 +364,7 @@ const connectCotterWrapper = function (WrappedComponent) {
       if (!this.state.scanned) {
         var scannedCode = e.data;
         console.log(e.data);
-        this.setState({scanned: true});
+        this.setState({ scanned: true });
         try {
           var resp = await this.trustDev.enrollOtherDevice(scannedCode);
           console.log(resp);
@@ -375,27 +382,27 @@ const connectCotterWrapper = function (WrappedComponent) {
     };
     render() {
       const authReqText = Object.assign(
-        {...this.state.defaultAuthReqText},
+        { ...this.state.defaultAuthReqText },
         this.state.authReqText,
       );
 
       const authApproveText = Object.assign(
-        {...this.state.defaultAuthApproveText},
+        { ...this.state.defaultAuthApproveText },
         this.state.authApproveText,
       );
 
       const showQRText = Object.assign(
-        {...this.state.defaultShowQRText},
+        { ...this.state.defaultShowQRText },
         this.state.showQRText,
       );
 
       const scanQRText = Object.assign(
-        {...this.state.defaultScanQRText},
+        { ...this.state.defaultScanQRText },
         this.state.scanQRText,
       );
 
       var scanQRtitle = (
-        <View style={{width: '100%'}}>
+        <View style={{ width: '100%' }}>
           <Title style={[styles.title, styles.textCenter]}>
             {scanQRText.title}
           </Title>
@@ -418,7 +425,7 @@ const connectCotterWrapper = function (WrappedComponent) {
             {scanQRText.blocked}
           </Subtitle>
 
-          <ButtonContainer style={{justifyContent: 'center'}}>
+          <ButtonContainer style={{ justifyContent: 'center' }}>
             <Button
               onPress={() => {
                 Linking.openSettings();
@@ -434,7 +441,7 @@ const connectCotterWrapper = function (WrappedComponent) {
       var scanQRComponent = (
         <>
           {scanQRtitle}
-          <View style={[styles.cameraContainer, {marginTop: 15}]}>
+          <View style={[styles.cameraContainer, { marginTop: 15 }]}>
             <FillToAspectRatio ratio="4:4">
               <RNCamera
                 style={styles.cameraContainer}
@@ -520,12 +527,12 @@ const connectCotterWrapper = function (WrappedComponent) {
             onDismiss={this.hideAuthApprove}
             presentationStyle="fullScreen">
             <View style={styles.fullModal}>
-              <View style={{width: winWidth, paddingLeft: 20}}>
+              <View style={{ width: winWidth, paddingLeft: 20 }}>
                 <TouchableOpacity onPress={this.closeAndRejectAuthApprove}>
                   <Image source={closeImage} style={styles.closeImage} />
                 </TouchableOpacity>
               </View>
-              <View style={[styles.imageView, {paddingBottom: 40}]}>
+              <View style={[styles.imageView, { paddingBottom: 40 }]}>
                 <Image source={authApproveText.logo} style={[styles.logo]} />
                 <Title style={[styles.title, styles.textCenter]}>
                   {authApproveText.title}
@@ -536,17 +543,17 @@ const connectCotterWrapper = function (WrappedComponent) {
                     : authApproveText.subtitle}
                 </Subtitle>
               </View>
-              <View style={{alignSelf: 'flex-end', paddingBottom: 30}}>
+              <View style={{ alignSelf: 'flex-end', paddingBottom: 30 }}>
                 <ButtonContainer>
                   <ButtonImage style={styles.button} onPress={this.rejectEvent}>
-                    <Subtitle style={{color: colors.red}}>
+                    <Subtitle style={{ color: colors.red }}>
                       {authApproveText.buttonNo}
                     </Subtitle>
                   </ButtonImage>
                   <ButtonImage
                     style={styles.button}
                     onPress={this.approveEvent}>
-                    <Subtitle style={{color: colors.green}}>
+                    <Subtitle style={{ color: colors.green }}>
                       {authApproveText.buttonYes}
                     </Subtitle>
                   </ButtonImage>
@@ -564,7 +571,7 @@ const connectCotterWrapper = function (WrappedComponent) {
             onDismiss={this.hideQRCode}
             presentationStyle="fullScreen">
             <View style={styles.fullModal}>
-              <View style={{width: winWidth, padding: 20}}>
+              <View style={{ width: winWidth, padding: 20 }}>
                 <TouchableOpacity onPress={this.hideQRCode}>
                   <Image source={closeImage} style={styles.closeImage} />
                 </TouchableOpacity>
@@ -574,7 +581,7 @@ const connectCotterWrapper = function (WrappedComponent) {
                   style={[
                     styles.title,
                     styles.textCenter,
-                    {paddingBottom: 10},
+                    { paddingBottom: 10 },
                   ]}>
                   {showQRText.title}
                 </Title>
@@ -582,7 +589,7 @@ const connectCotterWrapper = function (WrappedComponent) {
                   style={[
                     styles.subtitle,
                     styles.textCenter,
-                    {paddingBottom: 20},
+                    { paddingBottom: 20 },
                   ]}>
                   {showQRText.subtitle}
                 </Subtitle>
@@ -620,7 +627,7 @@ const connectCotterWrapper = function (WrappedComponent) {
             onDismiss={this.hideQRScan}
             presentationStyle="fullScreen">
             <View style={styles.fullModal}>
-              <View style={{width: winWidth, padding: 20}}>
+              <View style={{ width: winWidth, padding: 20 }}>
                 <TouchableOpacity onPress={this.hideQRScan}>
                   <Image source={closeImage} style={styles.closeImage} />
                 </TouchableOpacity>

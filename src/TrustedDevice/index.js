@@ -1,11 +1,12 @@
-import {NativeModules} from 'react-native';
-import {sign} from 'tweetnacl';
-import {Buffer} from 'buffer';
+import { NativeModules } from 'react-native';
+import { sign } from 'tweetnacl';
+import { Buffer } from 'buffer';
 import Requests from '../Requests';
-import {saveItemSecure, getItemSecure} from '../services/deviceStorage';
-import {CotterAuthModal} from './wrapper';
+import { saveItemSecure, getItemSecure } from '../services/deviceStorage';
+import { CotterAuthModal } from './wrapper';
 import TokenHandler from '../TokenHandler';
 import UserHandler from '../User/handler';
+import { generateCodeVerifierAndChallenge } from './utils';
 
 const trustedDeviceMethod = 'TRUSTED_DEVICE';
 const keyStoreAlias = 'COTTER_TRUSTED_DEVICE_KEY';
@@ -117,7 +118,7 @@ class TrustedDevice {
         return;
       }
     }
-    const {RNRandomBytes} = NativeModules;
+    const { RNRandomBytes } = NativeModules;
     RNRandomBytes.randomBytes(32, (_, bytes) => {
       var pubKey = pubKeyOrig;
       var secKey = secKeyOrig;
@@ -200,7 +201,7 @@ class TrustedDevice {
         return;
       }
     }
-    const {RNRandomBytes} = NativeModules;
+    const { RNRandomBytes } = NativeModules;
     RNRandomBytes.randomBytes(32, (_, bytes) => {
       var pubKey = pubKeyOrig;
       var secKey = secKeyOrig;
@@ -308,12 +309,18 @@ class TrustedDevice {
    */
   async authorizeDevice(event, onSuccess, onError, getOAuthToken = false) {
     var timestamp = Math.round(new Date().getTime() / 1000).toString();
-    var stringToSign = this.requests.constructApprovedEventMsg(
-      event,
-      timestamp,
-      this.method,
-    );
+
     try {
+      // Get a challenge to sign
+      challenge = await this.requests.requestEventChallenge();
+      var stringToSign = this.requests.constructApprovedEventMsg(
+        event,
+        timestamp,
+        this.method,
+        challenge.challenge_id,
+        challenge.challenge,
+      );
+
       var pubKey = await this.getPublicKey();
       var signature = await this.sign(stringToSign);
       var data = await this.requests.constructApprovedEventJSON(
@@ -323,6 +330,8 @@ class TrustedDevice {
         signature,
         pubKey,
         this.algorithm,
+        challenge.challenge_id,
+        challenge.challenge,
       );
       var resp = await this.requests.createApprovedEventRequest(
         data,
@@ -356,13 +365,22 @@ class TrustedDevice {
     getOAuthToken = true,
   ) {
     var timestamp = Math.round(new Date().getTime() / 1000).toString();
+
     try {
+      // Create code_challenge and verifier
+      const {
+        code_challenge,
+        code_verifier,
+      } = await generateCodeVerifierAndChallenge();
       var data = await this.requests.constructEventJSON(
         event,
         timestamp,
         this.method,
       );
-      var resp = await this.requests.createPendingEventRequest(data);
+      var resp = await this.requests.createPendingEventRequest(
+        data,
+        code_challenge,
+      );
       console.log(resp);
       CotterAuthModal.showAuthRequest(
         authRequestText,
@@ -370,6 +388,7 @@ class TrustedDevice {
         this,
         onSuccess,
         onError,
+        code_verifier,
         getOAuthToken,
       );
     } catch (err) {
@@ -407,6 +426,8 @@ class TrustedDevice {
       ev.timestamp,
       this.method,
       approve,
+      ev.challenge_id,
+      ev.challenge,
     );
     try {
       var pubKey = await this.getPublicKey();
@@ -418,9 +439,11 @@ class TrustedDevice {
         pubKey,
         this.algorithm,
         approve,
+        ev.challenge_id,
+        ev.challenge,
       );
       var resp = await this.requests.createRespondEventRequest(ev.ID, data);
-      console.log('RESPOND', resp);
+
       return resp;
     } catch (err) {
       console.log(err);
@@ -454,7 +477,7 @@ class TrustedDevice {
         return;
       }
     } catch (e) {
-      const {RNRandomBytes} = NativeModules;
+      const { RNRandomBytes } = NativeModules;
       RNRandomBytes.randomBytes(32, (_, bytes) => {
         seed = Buffer.from(bytes, 'base64');
 
@@ -530,12 +553,16 @@ class TrustedDevice {
     }
 
     try {
+      // Get a challenge to sign
+      challenge = await this.requests.requestEventChallenge();
       var event = 'ENROLL_NEW_TRUSTED_DEVICE';
       var stringToSign =
         this.requests.constructApprovedEventMsg(
           event,
           timeNow + '',
           this.method,
+          challenge.challenge_id,
+          challenge.challenge,
         ) + newPublicKey;
       var signature = await this.sign(stringToSign);
       var pubKey = await this.getPublicKey();
@@ -548,6 +575,8 @@ class TrustedDevice {
         this.algorithm,
         newPublicKey,
         newAlgo,
+        challenge.challenge_id,
+        challenge.challenge,
       );
       var resp = await this.requests.createApprovedEventRequest(req);
       return resp;
