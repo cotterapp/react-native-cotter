@@ -48,6 +48,16 @@ class Cotter {
     return await User.getLoggedInUser();
   }
 
+  async getUserByIdentifier(identifier: string): Promise<User> {
+    try {
+      let requests = new Requests(this.apiKeyID);
+      var resp = await requests.getUserByIdentifier(identifier);
+      return new User(resp);
+    } catch (err) {
+      throw new Error(errToString(err));
+    }
+  }
+
   // ================================
   //          Verify Email
   // ================================

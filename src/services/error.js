@@ -5,6 +5,9 @@ export const errToString = (err) => {
   if (typeof err?.msg == 'string') {
     return err?.msg;
   }
+  if (typeof err == 'string') {
+    return err;
+  }
   return (
     JSON.stringify(err?.response?.data?.msg) ||
     JSON.stringify(err?.msg) ||
