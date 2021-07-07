@@ -1,6 +1,10 @@
 // @flow
 import * as React from 'react';
-import {StyleSheet, View} from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { sha256 } from 'react-native-sha256';
+import { generateSecureRandom } from 'react-native-securerandom';
+import { Buffer } from 'buffer';
+import { hexToBytes } from '../Verify/utils';
 
 // type LayoutInfo = {
 //   width: number,
@@ -23,21 +27,21 @@ export class FillToAspectRatio extends React.Component {
   state = {
     layoutInfo: null,
   };
-  handleLayout = ({nativeEvent: {layout}}) => {
-    const {width, height} = layout;
+  handleLayout = ({ nativeEvent: { layout } }) => {
+    const { width, height } = layout;
     this.setState({
-      layoutInfo: {width, height},
+      layoutInfo: { width, height },
     });
   };
 
   getRatio = () => {
-    const {ratio} = this.props;
+    const { ratio } = this.props;
     const [ratioWidth, ratioHeight] = ratio.split(':').map((x) => Number(x));
     return ratioHeight / ratioWidth;
   };
 
   render() {
-    const {layoutInfo} = this.state;
+    const { layoutInfo } = this.state;
     if (!layoutInfo) {
       return (
         <View
@@ -47,8 +51,9 @@ export class FillToAspectRatio extends React.Component {
         />
       );
     }
-    const {height, width} = layoutInfo;
+    const { height, width } = layoutInfo;
     let wrapperWidth;
+
     let wrapperHeight;
     // return <Text>lol: before </Text>
     const ratio = this.getRatio();
@@ -79,5 +84,24 @@ export class FillToAspectRatio extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  containerStyle: {flex: 1, overflow: 'hidden', position: 'relative'},
+  containerStyle: { flex: 1, overflow: 'hidden', position: 'relative' },
 });
+
+export const generateCodeVerifierAndChallenge = async () => {
+  // generating code verifier
+  var randomBytes = await generateSecureRandom(32);
+  var codeVerifier = new Buffer(randomBytes).toString('base64');
+
+  // generating code challenge
+  var hashed = await sha256(codeVerifier);
+  base64encoded = new Buffer(hexToBytes(hashed))
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+  var codeChallenge = base64encoded;
+  return {
+    code_verifier: codeVerifier,
+    code_challenge: codeChallenge,
+  };
+};
